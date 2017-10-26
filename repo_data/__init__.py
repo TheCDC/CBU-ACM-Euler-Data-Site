@@ -1,5 +1,6 @@
 from git import Repo
 import os
+import shutil
 
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
@@ -10,6 +11,7 @@ def leftpad(s, c, l):
 
 def setup():
     # clone the euler repository into the user's home directory
+    shutil.rmtree(TARGET_DIR)
     Repo.clone_from(
         "https://github.com/TheCDC/cbu_csse_euler.git", TARGET_DIR)
 
@@ -88,6 +90,7 @@ def most_average_user():
 
 
 def main():
+    setup()
     print(TARGET_DIR)
     print(who_solved(1))
     # print(language_of_file.__doc__)
