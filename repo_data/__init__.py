@@ -4,6 +4,10 @@ import os
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
 
+def leftpad(s, c, l):
+    return c * (l - len(s)) + s
+
+
 def setup():
     # clone the euler repository into the user's home directory
     Repo.clone_from(
@@ -24,7 +28,23 @@ def count_all_solutions():
 
 def who_solved(problem_number):
     """Return a list of the names of users who have solved problem_number."""
-    pass
+    # construct the name of the folder in which solutions will be found
+    problem_filename = 'euler_{}/'.format(leftpad(str(problem_number), '0', 3))
+    # locate the folder with name that within the repo
+    problem_directory = os.path.join(TARGET_DIR, problem_filename)
+    # get the list of files/directories within it
+    files_list = os.listdir(problem_directory)
+    # a place the put our output
+    folders = []
+    # loop over all the found files/directories
+    for f in files_list:
+        # construct the absolute path of each
+        final_directory = os.path.join(problem_directory, f)
+        # check whether its a file or folder
+        if os.path.isdir(final_directory):
+            # if it is, append it to our output
+            folders.append(final_directory)
+    return folders
 
 
 def which_solved():
@@ -69,6 +89,7 @@ def most_average_user():
 
 def main():
     print(TARGET_DIR)
+    print(who_solved(1))
     # print(language_of_file.__doc__)
 
 
