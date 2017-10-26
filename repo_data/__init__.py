@@ -45,7 +45,7 @@ def who_solved(problem_number):
         # check whether its a file or folder
         if os.path.isdir(final_directory):
             # if it is, append it to our output
-            folders.append(final_directory)
+            folders.append(f)
     return folders
 
 
