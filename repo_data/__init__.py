@@ -9,9 +9,17 @@ def leftpad(s, c, l):
     return c * (l - len(s)) + s
 
 
+def readonly_handler(func, path, execinfo):
+    """Function to ensure the correct user owns the file
+    we're trying to delete."""
+    os.chmod(path, 128)  # or os.chmod(path, stat.S_IWRITE) from "stat" module
+    func(path)
+
+
 def setup():
     # clone the euler repository into the user's home directory
-    shutil.rmtree(TARGET_DIR)
+    if os.path.exists(TARGET_DIR):
+        shutil.rmtree(TARGET_DIR, onerror=readonly_handler)
     Repo.clone_from(
         "https://github.com/TheCDC/cbu_csse_euler.git", TARGET_DIR)
 
