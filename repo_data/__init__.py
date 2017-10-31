@@ -49,7 +49,11 @@ def who_solved(problem_number):
     # locate the folder with name that within the repo
     problem_directory = os.path.join(TARGET_DIR, problem_filename)
     # get the list of files/directories within it
-    files_list = os.listdir(problem_directory)
+    try:
+        files_list = os.listdir(problem_directory)
+    except FileNotFoundError:
+        # the problem might not have any solutions
+        return []
     # a place the put our output
     folders = []
     # loop over all the found files/directories
