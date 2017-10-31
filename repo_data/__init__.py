@@ -30,6 +30,12 @@ def language_of_file(filename):
     pass
 
 
+def which_solved():
+    """Return a list of the numbers of problems that have
+    at least one solution."""
+    pass
+
+
 def count_all_solutions():
     """Return the total number of solutions across the entire repo.
     """
@@ -55,12 +61,6 @@ def who_solved(problem_number):
             # if it is, append it to our output
             folders.append(f)
     return folders
-
-
-def which_solved():
-    """Return a list of the numbers of problems that have
-    at least one solution."""
-    pass
 
 
 def is_solved(problem_number):
