@@ -27,7 +27,14 @@ def setup():
 def language_of_file(filename):
     """Return the name of the Programming language
     in which filename was written."""
-    pass
+
+    # list of all file extensions of assumed used languages
+    file_ext_map = {".c": "C", ".cpp": "C++", ".cs": "C#", ".java": "Java", ".m": "MatLab",
+                    ".py": "Python", ".rb": "Ruby"}
+    # gets the file extension type
+    filename_ext = filename[filename.index(".", 0, len(filename)):]
+    # returns the file type
+    return file_ext_map.get(filename_ext)
 
 
 def which_solved():
