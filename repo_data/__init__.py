@@ -27,7 +27,6 @@ def setup():
 def language_of_file(filename):
     """Return the name of the Programming language
     in which filename was written."""
-
     # list of all file extensions of assumed used languages
     file_ext_map = {".c": "C", ".cpp": "C++", ".cs": "C#", ".java": "Java", ".m": "MatLab",
                     ".py": "Python", ".rb": "Ruby"}
@@ -106,6 +105,33 @@ def most_average_user():
     """Return the username of the user whose numer of problems solved
     is closest to the average."""
     pass
+
+
+def get_contributors():
+    """Return a list of all the users that have contributed to the project thus far"""
+    # todo find a way to manage the same contributor with different names
+    # set of users to prevent repeats
+    contributors = set()
+    # adds all the users who a have completed a problem
+    for problem in get_problems():
+        # for every problem adds the users who have solved it
+        for contributor in who_solved(problem):
+            contributors.add(contributor)
+    return contributors
+
+
+def get_problems():
+    """Helper function that returns a list of all the problems"""
+    # gets a list of all the problems
+    files_list = os.listdir(TARGET_DIR)
+    # list to be returned
+    problems = []
+    # loops through adding problems
+    for problem in files_list:
+        # checks if the file contains a problem number to add
+        if "_" in problem and problem[problem.index("_") + 1:]:
+            problems.append(problem[problem.index("_") + 1:])
+    return problems
 
 
 def main():
