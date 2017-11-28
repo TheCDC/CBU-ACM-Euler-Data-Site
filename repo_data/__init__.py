@@ -1,6 +1,7 @@
 from git import Repo
 import os
 import shutil
+import math
 
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
@@ -27,7 +28,6 @@ def setup():
 def language_of_file(filename):
     """Return the name of the Programming language
     in which filename was written."""
-
     # list of all file extensions of assumed used languages
     file_ext_map = {".c": "C", ".cpp": "C++", ".cs": "C#", ".java": "Java", ".m": "MatLab",
                     ".py": "Python", ".rb": "Ruby"}
@@ -40,13 +40,25 @@ def language_of_file(filename):
 def which_solved():
     """Return a list of the numbers of problems that have
     at least one solution."""
-    pass
+    # list to hold solved problems
+    num_solved = []
+    # loops through every problem checking if it has a solution
+    for problem in get_problems():
+        # if it has a solution it is added
+        if is_solved(problem):
+            num_solved.append('Euler {}'.format(leftpad(str(problem), '0', 3)))
+    return num_solved
 
 
 def count_all_solutions():
     """Return the total number of solutions across the entire repo.
     """
-    pass
+    # the number of solutions
+    num_solutions = 0
+    # loops through every problem adding the number of solutions it has
+    for problem in get_problems():
+        num_solutions += len(who_solved(problem))
+    return num_solutions
 
 
 def who_solved(problem_number):
@@ -81,31 +93,111 @@ def is_solved(problem_number):
 
 def problems_solved_by(username):
     """Return a list of the numbers of the problems solved by username."""
-    pass
+    # list of the problems solved by user
+    solved = []
+    # checks every problem
+    for problem in get_problems():
+        # if the user has solved problem, problem is added to solved
+        if username in who_solved(problem):
+            solved.append('Euler {}'.format(leftpad(str(problem), '0', 3)))
+    return solved
 
 
 def most_popular_problems():
     """Return a list of numbers of problems in descending order of 
     popularity."""
-    pass
+    # list of all the problems
+    problems = get_problems()
+    # sorts based on number of solutions
+    problems.sort(key=compare_problems)
+    problems = ["Euler " + problem for problem in problems]
+    return problems
+
+
+def compare_problems(p1):
+    """A compare function, made to compare problems by the number of solutions"""
+    return -len(who_solved(p1))
 
 
 def top_contributors():
     """Return a list of user in descending order of
     number of problems solved."""
-    pass
+    # Set of all the users casted to a list
+    contributors = list(get_contributors())
+    # Sorts the list based on number of solutions
+    contributors.sort(key=compare_users)
+    return contributors
+
+
+def compare_users(username):
+    """A compare function, made to compare user by num solved"""
+    return -len(problems_solved_by(username))
 
 
 def find_solution_files(problem_number, username):
     """Return a list of the locations of all files for the solutions of
     problem_number by username."""
-    pass
+    # list of the location of the user's solution for said problem
+    problems = []
+    # the folder directory of the problem
+    problem_filename = 'euler_{}/'.format(leftpad(str(problem_number), '0', 3))
+    # tries to retrieve a list of all folders in the directory
+    try:
+        files_list = os.listdir(os.path.join(TARGET_DIR, problem_filename))
+    except FileNotFoundError:
+        return []
+    # for all the files adds the location of all the files of the user
+    for file in files_list:
+        if username in file:
+            problems.append(os.path.join(TARGET_DIR, problem_filename) + file)
+    return problems
 
 
 def most_average_user():
-    """Return the username of the user whose numer of problems solved
+    """Return the username of the user whose number of problems solved
     is closest to the average."""
-    pass
+    # finds tha average number of solutions
+    avg = count_all_solutions() / len(which_solved())
+    # the current average user
+    curr_avg = ""
+    # diff from the average
+    diff = 999
+    # checks every contributor to be average
+    for contributor in sorted(get_contributors()):
+        # finds the distance from the number solved to the average
+        dist_from_avg = math.fabs(len(problems_solved_by(contributor)) - avg)
+        # sets curr avg to contributor if dist is less then current diff
+        if dist_from_avg < diff:
+            curr_avg = contributor
+            diff = dist_from_avg
+    return curr_avg
+
+
+def get_contributors():
+    """Return a list of all the users that have contributed to the project thus far"""
+    # todo find a way to manage the same contributor with different names
+    # set of users to prevent repeats
+    contributors = set()
+    # adds all the users who a have completed a problem
+    for problem in get_problems():
+        # for every problem adds the users who have solved it
+        for contributor in who_solved(problem):
+            contributors.add(contributor)
+    return contributors
+
+
+def get_problems():
+    """Helper function that returns a list of all the problems"""
+    # gets a list of all the problems
+    files_list = os.listdir(TARGET_DIR)
+    # list to be returned
+    problems = []
+    # loops through adding problems
+    for problem in files_list:
+        # checks if the file contains a problem number to add
+        if "_" in problem and problem[problem.index("_") + 1:].isnumeric():
+            problems.append(problem[problem.index("_") + 1:])
+    return problems
 
 
 def main():
