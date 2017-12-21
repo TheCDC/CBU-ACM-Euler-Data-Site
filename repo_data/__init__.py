@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
+
 def leftpad(s, c, l):
     return c * (l - len(s)) + s
 

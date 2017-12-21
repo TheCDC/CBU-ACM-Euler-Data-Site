@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def main_page():
+    # renders a template for the main page
     return render_template('Git_Hub_Data_Site.html',
                            top_contributor=top_contributor(),
                            most_popular_problem=most_popular_problem(),
@@ -14,24 +15,25 @@ def main_page():
 
 
 def top_contributor():
+    # returns the top contributor
     return repo_data.top_contributors()[0]
 
 
-@app.route('/most_popular_problems')
 def most_popular_problem():
+    # returns the most popular problem
     return repo_data.most_popular_problems()[0]
 
 
-@app.route('/num_solutions')
 def num_solutions():
+    # returns the number of solutions
     return repo_data.count_all_solutions()
 
 
-@app.route('/most_average_user')
 def most_average_user():
+    # returns the most average user
     return repo_data.most_average_user()
 
 
-@app.route('/num_contributors')
 def num_contributors():
+    # returns the number of contributors
     return len(repo_data.get_contributors())
