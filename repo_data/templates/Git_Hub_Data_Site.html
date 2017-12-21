@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>CBU Project Euler</title>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
+    </head>
+    <body>
+      <h1>CBU's Project Euler</h1>
+      <h2>Current Stats</h2>
+        <table>
+          <tr>
+            <th>Top Contributor</th>
+            <th>Most Popular Problem</th>
+            <th>Most Average User</th>  
+          </tr>
+          <tr>
+            <td>{{ url_for(top_contributor()) }}</td>
+            <td>and some more</td>
+            <td>and some more</td>
+          </tr>
+        </table>
+        <table>
+          <tr>
+            <th>Current Number of Solutions</th>
+            <th>Current Number of Contributors</th>
+            <th>Most Common Language</th>
+          </tr>
+          <tr>
+            <td>And some more</td>
+            <td>And some more</td>
+            <td>And some more</td>
+          </tr>
+        </table>
+    </body>
+    <footer>
+      <p><cite>vertical code wallpaper</cite> https://wallpapertag.com/wallpaper/full/4/2/9/125577-vertical-code-wallpaper-2560x1600-pc.jpg</p>
+    </footer>
+  </html>
