@@ -14,9 +14,9 @@
             <th>Most Average User</th>  
           </tr>
           <tr>
-            <td>{{ url_for(top_contributor()) }}</td>
-            <td>and some more</td>
-            <td>and some more</td>
+            <td>{{ top_contributor }}</td>
+            <td>{{ most_popular_problem }}</td>
+            <td>{{ most_average_user}}</td>
           </tr>
         </table>
         <table>
@@ -26,8 +26,8 @@
             <th>Most Common Language</th>
           </tr>
           <tr>
-            <td>And some more</td>
-            <td>And some more</td>
+            <td>{{ num_solutions }}</td>
+            <td>{{ num_contributors }}</td>
             <td>And some more</td>
           </tr>
         </table>
