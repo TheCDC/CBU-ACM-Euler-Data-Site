@@ -2,6 +2,8 @@ from git import Repo
 import os
 import shutil
 import math
+from flask import Flask, render_template
+app = Flask(__name__)
 
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
@@ -153,6 +155,7 @@ def find_solution_files(problem_number, username):
     return problems
 
 
+
 def most_average_user():
     """Return the username of the user whose number of problems solved
     is closest to the average."""
@@ -202,9 +205,6 @@ def get_problems():
 
 def main():
     setup()
-    print(TARGET_DIR)
-    print(who_solved(1))
-    # print(language_of_file.__doc__)
 
 
 if __name__ == '__main__':
