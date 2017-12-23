@@ -40,3 +40,6 @@ class DataSiteTest(unittest.TestCase):
         self.assertSetEqual(rd.get_contributors(), {"Alex Liu", "Christopher Nugent", "Christopher D Chen", "Craig Mariani",
                                                     "Hannah Bernal", "Micah Steinbock", "Anthony Henson", "Dylan Stump",
                                                     "Chris Nugent"})
+
+    def test_most_common_language(self):
+        self.assertEqual('python', rd.most_common_language())
