@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Contributors List</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
 </head>
 <body>
-
+<h1>Contributors</h1>
+<h2><a style="float: left; margin-right: 4pc" href="{{ url_for('problems') }}">problems</a></h2>
+<h2><a style="float: right; margin-right: 4pc" href="{{ url_for('main_page') }}">home</a></h2>
+<table>
+    <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Problems Solved</th>
+    </tr>
+    {% for contributor in contributors %}
+    <tr>
+        <th>{{ contributor.get_rank()|e }}</th>
+        <th>{{ contributor.username|e }}</th>
+        <th>{{ contributor.get_problems()|e }}</th>
+    </tr>
+    {% endfor %}
+</table>
 </body>
-</html>

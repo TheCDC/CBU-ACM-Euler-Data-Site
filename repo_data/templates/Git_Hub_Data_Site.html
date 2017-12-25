@@ -2,10 +2,12 @@
   <html>
     <head>
       <title>CBU Project Euler</title>
-      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
     </head>
     <body>
       <h1>CBU's Project Euler</h1>
+      <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
+      <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems') }}">Problems</a></h2>
       <h2>Current Stats</h2>
         <table>
           <tr>
@@ -28,11 +30,11 @@
           <tr>
             <td>{{ num_solutions }}</td>
             <td>{{ num_contributors }}</td>
-            <td>And some more</td>
+            <td>{{ most_common_language }}</td>
           </tr>
         </table>
     </body>
-    <footer>
+    <footer style="position: absolute; bottom: 5px">
       <p><cite>vertical code wallpaper</cite> https://wallpapertag.com/wallpaper/full/4/2/9/125577-vertical-code-wallpaper-2560x1600-pc.jpg</p>
     </footer>
   </html>

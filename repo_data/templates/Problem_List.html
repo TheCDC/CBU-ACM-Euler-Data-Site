@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<Head>
+    <Title>Problems List</Title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
+</Head>
 <body>
-
+    <h1>Problems</h1>
+    <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
+    <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
+        <table>
+            <tr>
+                <th>Problem Number</th>
+                <th>Problem Popularity</th>
+                <th>Who solved</th>
+            </tr>
+            {% for problem in problems %}
+            <tr>
+                <th>Euler {{ problem.problem_number|e }}</th>
+                <th>{{ problem.get_popularity()|e }}</th>
+                <th>{{ problem.get_who_solved()|e }}</th>
+            </tr>
+            {% endfor %}
+        </table>
 </body>
-</html>
+

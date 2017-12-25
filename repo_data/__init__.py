@@ -174,12 +174,13 @@ def find_solution_files(problem_number, username):
     problem_filename = os.path.join(TARGET_DIR, 'euler_{}/'.format(leftpad(str(problem_number), '0', 3)))
     # tries to retrieve a list of all folders in the directory
     try:
-        files_list = os.listdir(os.path.join(problem_filename, username))
-    except NotADirectoryError:
+        user_filename = os.path.join(problem_filename, username)
+        files_list = os.listdir(user_filename)
+    except (FileNotFoundError, NotADirectoryError):
         return []
     # for all the files adds the location of all the files of the user
     for file in files_list:
-        problems.append(os.path.join(TARGET_DIR, problem_filename) + file)
+        problems.append(os.path.join(user_filename, file))
     return problems
 
 

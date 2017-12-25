@@ -11,11 +11,11 @@ body {
 
 table, th, td{
   font-family: Courier, serif;
-  color: AliceBlue;  
+  color: AliceBlue;
 }
 
 table {
-  margin-bottom: 30px;
+  margin-bottom: 4px;
   width: 100%;
 }
 

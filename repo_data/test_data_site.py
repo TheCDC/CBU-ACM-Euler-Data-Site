@@ -1,5 +1,6 @@
 import unittest
 import repo_data as rd
+from repo_data import CBU_ACM_Data_Site as data_site
 
 
 class DataSiteTest(unittest.TestCase):
@@ -26,7 +27,7 @@ class DataSiteTest(unittest.TestCase):
 
     def test_find_solution_files(self):
         self.assertListEqual(rd.find_solution_files("1", "Alex Liu"),
-                             ['C:\\Users\\Alex Liu\\cbu_csse_euler\\euler_001/Alex Liu'])
+                             ['C:\\Users\\Alex Liu\\cbu_csse_euler\\euler_001/Alex Liu\\euler_001.py'])
         self.assertListEqual(rd.find_solution_files("5", "Alex Liu"), [])
 
     # tests the helper method to get problems
@@ -42,4 +43,16 @@ class DataSiteTest(unittest.TestCase):
                                                     "Chris Nugent"})
 
     def test_most_common_language(self):
-        self.assertEqual('python', rd.most_common_language())
+        self.assertEqual('Python', rd.most_common_language())
+
+    def test_create_problems(self):
+        # creates lists for created problems and actual problems
+        create_problems_list = data_site.create_problems()
+        problem_list = rd.get_problems()
+
+        # asserts they are the same length
+        self.assertEqual(len(problem_list), len(create_problems_list))
+
+        # asserts each problem has the same number
+        for a, b in zip(problem_list, create_problems_list):
+            self.assertEqual(a, b.problem_number)
