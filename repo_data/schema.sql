@@ -1,6 +1,6 @@
 CREATE TABLE
 IF NOT EXISTS Contributors(
-  username integer PRIMARY KEY,
+  username text PRIMARY KEY,
   rank integer NOT NULL ,
   number_solved integer NOT NULL ,
 )

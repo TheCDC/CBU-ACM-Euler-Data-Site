@@ -3,9 +3,17 @@ import os
 from repo_data import Objects
 import sqlite3
 from flask import Flask, render_template,g
-app = Flask(__name__)
 
-DATABASE = os.path.join(os.path.dirname(__file__), 'Data_Site.db')
+app = Flask(__name__)
+app.config.from_object(__name__)
+
+app.config.update(dict(
+    DATABASE=os.path.join(app.root_path, 'data_site.db'),
+    SECRET_KEY='development key',
+    USERNAME='admin',
+    PASSWORD='default'
+))
+app.config.from_envvar('DATA_SITE_SETTINGS', silent=True)
 
 
 def connect_database():
@@ -15,17 +23,30 @@ def connect_database():
 
 
 def get_database():
+    """creates a new connection to the database"""
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_database()
     return g.sqlite_db
 
 
-def init_databse():
+def init_database():
     database = get_database()
     with app.open_resource('schema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
     database.commit()
+    create_contributors()
 
+
+@app.cli.command('init_database')
+def init_database_command():
+    init_database()
+    print('Database initialized')
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """closes the database at the end of the request"""
+    database = getattr(g, 'sqlite_db', None)
 
 
 @app.route('/Data_Site')
@@ -41,25 +62,34 @@ def main_page():
 
 
 def create_contributors():
-    contributors_list = []
-
     # loops through contributors, creating contributor objects
     for contributor in repo_data.top_contributors():
         # creates a new contributor and adds it on
-        contributors_list.append(Objects.Contributor(contributor))
-
-    return contributors_list
+        add_contributor(contributor)
 
 
-def add_contributor():
+def add_contributor(user):
+    # gets the database and selects all users
+    database = get_database()
+    cur = database.execute('SELECT username FROM Contributors')
+
+    # if the user is not already in the database creates a new record
+    if user.username not in cur.fetchall():
+        # tries to create a new contributor of name user
+        try:
+            contributor = Objects.Contributor(user)
+        except NameError:
+            return
+
+        cur = database.execute('INSERT INTO Contributors (username, rank, number_solved) VALUES (?, ?, ?)',
+                               contributor.username, contributor.get_rank(), len(contributor.get_problems()))
 
 
 @app.route('/Contributors_List')
 def contributors():
     database = get_database()
-    users =
     return render_template('Contributors_List.html',
-                           contributors=create_contributors())
+                           contributors=database.execute('SELECT * FROM Contributors ORDER BY rank DESC').fetchall())
 
 
 def create_problems():
@@ -79,7 +109,4 @@ def problems():
                            problems=create_problems())
 
 
-@app.teardown_appcontext
-def close_db(error):
-    """closes the database at the end of the request"""
-    database = getattr(g, 'sqlite_db', None)
+
