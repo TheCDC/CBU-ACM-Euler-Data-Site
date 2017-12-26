@@ -15,9 +15,9 @@
     </tr>
     {% for contributor in contributors %}
     <tr>
-        <th>{{ contributor.get_rank()|e }}</th>
-        <th>{{ contributor.username|e }}</th>
-        <th>{{ contributor.get_problems()|e }}</th>
+        <th>{{ contributor[2]|e }}</th>
+        <th>{{ contributor[1]|e }}</th>
+        <th>{{ contributor[3]|e }}</th>
     </tr>
     {% endfor %}
 </table>

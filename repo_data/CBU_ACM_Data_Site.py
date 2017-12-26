@@ -17,6 +17,7 @@ app.config.from_envvar('DATA_SITE_SETTINGS', silent=True)
 
 
 def connect_database():
+    """establishes a connection to the database"""
     connection = sqlite3.connect(app.config['DATABASE'])
     connection.row_factory = sqlite3.Row
     return connection
@@ -30,17 +31,50 @@ def get_database():
 
 
 def init_database():
+    """initializes the database with current contributors and problems at time of creation"""
     database = get_database()
-    with app.open_resource('schema.sql', mode='r') as f:
+    # creates a contributor table
+    with app.open_resource('ContributorsSchema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
-    database.commit()
+    # creates a problem table
+    with app.open_resource('ProblemsSchema.sql', mode='r') as f:
+        database.cursor().executescript(f.read())
+
+    # fills with initial data
     create_contributors()
+    create_problems()
+    # commits
+    database.commit()
 
 
 @app.cli.command('init_database')
 def init_database_command():
     init_database()
     print('Database initialized')
+
+
+def create_problems():
+    """method to add all current problems to the database"""
+    # loops through problems creating Problems
+    for problem in repo_data.get_problems():
+        # creates a new problem and adds it to the list
+        add_problems(problem)
+
+
+def create_contributors():
+    """method to add all current contributors to the database"""
+    # loops through contributors, creating contributor objects
+    for contributor in repo_data.top_contributors():
+        # creates a new contributor and adds it on
+        add_contributor(contributor)
+
+
+def update():
+    """ a method to update the current database fo any new contributors or problems"""
+    database = get_database()
+    create_problems()
+    create_contributors()
+    database.commit()
 
 
 @app.teardown_appcontext
@@ -61,52 +95,54 @@ def main_page():
                            most_common_language=repo_data.most_common_language())
 
 
-def create_contributors():
-    # loops through contributors, creating contributor objects
-    for contributor in repo_data.top_contributors():
-        # creates a new contributor and adds it on
-        add_contributor(contributor)
-
-
 def add_contributor(user):
+    """helper method to add contributors"""
     # gets the database and selects all users
     database = get_database()
     cur = database.execute('SELECT username FROM Contributors')
 
     # if the user is not already in the database creates a new record
-    if user.username not in cur.fetchall():
+    if user not in cur.fetchall():
         # tries to create a new contributor of name user
         try:
             contributor = Objects.Contributor(user)
         except NameError:
             return
-
-        cur = database.execute('INSERT INTO Contributors (username, rank, number_solved) VALUES (?, ?, ?)',
-                               contributor.username, contributor.get_rank(), len(contributor.get_problems()))
+        user_info = [contributor.username, contributor.get_rank(), ', '.join(contributor.get_problems())]
+        cur = database.execute('INSERT INTO Contributors (username, rank, problems_solved) VALUES (?, ?, ?)',
+                                 user_info)
 
 
 @app.route('/Contributors_List')
 def contributors():
     database = get_database()
     return render_template('Contributors_List.html',
-                           contributors=database.execute('SELECT * FROM Contributors ORDER BY rank DESC').fetchall())
+                           contributors=database.execute('SELECT * FROM Contributors ORDER BY rank ').fetchall())
 
 
-def create_problems():
-    problems_list = []
+def add_problems(number):
+    """helper method to add problems"""
+    # gets the database and selects all users
+    database = get_database()
+    cur = database.execute('SELECT problem_number FROM Problems')
 
-    # loops through problems creating Problems
-    for problem in repo_data.get_problems():
-        # creates a new problem and adds it to the list
-        problems_list.append(Objects.Problem(problem))
-
-    return problems_list
+    # if the user is not already in the database creates a new record
+    if number not in cur.fetchall():
+        # tries to create a new contributor of name user
+        try:
+            problem = Objects.Problem(number)
+        except NameError:
+            return
+        problem_info = [problem.problem_number, problem.get_popularity(), ', '.join(problem.get_who_solved())]
+        cur = database.execute('INSERT INTO Problems (problem_number, popularity, who_solved) VALUES (?, ?, ?)',
+                                 problem_info)
 
 
 @app.route('/Problems_List')
 def problems():
+    database = get_database()
     return render_template('Problem_List.html',
-                           problems=create_problems())
+                           problems=database.execute('SELECT * FROM Problems ORDER BY problem_number').fetchall())
 
 
 
