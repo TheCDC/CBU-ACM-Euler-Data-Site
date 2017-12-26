@@ -15,9 +15,9 @@
             </tr>
             {% for problem in problems %}
             <tr>
-                <th>Euler {{ problem.problem_number|e }}</th>
-                <th>{{ problem.get_popularity()|e }}</th>
-                <th>{{ problem.get_who_solved()|e }}</th>
+                <th>Euler {{ problem[1]|e }}</th>
+                <th>{{ problem[2]|e }}</th>
+                <th>{{ problem[3]|e }}</th>
             </tr>
             {% endfor %}
         </table>
