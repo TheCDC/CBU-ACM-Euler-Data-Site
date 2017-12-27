@@ -1,0 +1,33 @@
+body {
+	background-size: 100%;
+	font-family: Helvetica, serif;
+	color: Black;
+	height: 100%;
+	margin: 0;
+	text-align: center;
+	width: 100%;
+}
+
+table, th, td{
+  font-family: Helvetica, serif;
+  color: Black;
+}
+
+table {
+  table-layout: fixed;
+  margin: auto;
+  width: 75%;
+}
+
+th {
+  height: 50px;
+}
+
+th, td{
+  padding: 8px;
+  text-align: center;
+}
+
+
+  
+

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <Head>
     <Title>Problems List</Title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 </Head>
+
 <body>
-    <h1>Problems</h1>
-    <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
-    <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
+<div id="bannerimage">
+    <h1>CBU's Project Euler</h1>
+    <h2><a style="float: right; margin-left: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
+    <h2><a style="float: left; margin-right: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
+</div>
+    <h2>Problems</h2>
         <table>
             <tr>
                 <th>Problem Number</th>

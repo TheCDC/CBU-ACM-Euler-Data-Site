@@ -1,24 +1,25 @@
 <!DOCTYPE html>
   <html>
-    <head>
-      <title>CBU Project Euler</title>
-      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
-    </head>
+    <title>CBU Project Euler</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
     <body>
-      <h1>CBU's Project Euler</h1>
-      <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
-      <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems') }}">Problems</a></h2>
-      <h2>Current Stats</h2>
+      <div id="bannerimage">
+        <h1>CBU's Project Euler</h1>
+        <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
+        <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems') }}">Problems</a></h2>
+      </div>
+      <div>
+        <h2>Current Stats</h2>
         <table>
           <tr>
             <th>Top Contributor</th>
             <th>Most Popular Problem</th>
-            <th>Most Average User</th>  
+            <th>Most Average User</th>
           </tr>
           <tr>
-            <td>{{ top_contributor }}</td>
-            <td>{{ most_popular_problem }}</td>
-            <td>{{ most_average_user}}</td>
+            <td>{{ stats[0] }}</td>
+            <td>{{ stats[1] }}</td>
+            <td>{{ stats[2] }}</td>
           </tr>
         </table>
         <table>
@@ -28,13 +29,24 @@
             <th>Most Common Language</th>
           </tr>
           <tr>
-            <td>{{ num_solutions }}</td>
-            <td>{{ num_contributors }}</td>
-            <td>{{ most_common_language }}</td>
+            <td>{{ stats[3] }}</td>
+            <td>{{ stats[4] }}</td>
+            <td>{{ stats[5] }}</td>
           </tr>
         </table>
+      </div>
+      <div id="searchbars">
+        {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+        <form action="{{ url_for('main_page') }}" method="post">
+          <d1>
+            <dt>Search for User:
+            <dd><input type="text" name="username">
+            <dd><input type=submit value=Search>
+            <dt>Search for problem:
+            <dd><input type="text" name="problem">
+            <dd><input type=submit value=Search>
+          </d1>
+        </form>
+      </div>
     </body>
-    <footer style="position: absolute; bottom: 5px">
-      <p><cite>vertical code wallpaper</cite> https://wallpapertag.com/wallpaper/full/4/2/9/125577-vertical-code-wallpaper-2560x1600-pc.jpg</p>
-    </footer>
   </html>

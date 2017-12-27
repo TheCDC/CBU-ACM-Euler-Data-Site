@@ -2,7 +2,7 @@ import repo_data
 import os
 from repo_data import Objects
 import sqlite3
-from flask import Flask, render_template,g
+from flask import Flask, render_template, g, request, redirect
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -10,8 +10,6 @@ app.config.from_object(__name__)
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data_site.db'),
     SECRET_KEY='development key',
-    USERNAME='admin',
-    PASSWORD='default'
 ))
 app.config.from_envvar('DATA_SITE_SETTINGS', silent=True)
 
@@ -34,10 +32,10 @@ def init_database():
     """initializes the database with current contributors and problems at time of creation"""
     database = get_database()
     # creates a contributor table
-    with app.open_resource('ContributorsSchema.sql', mode='r') as f:
+    with app.open_resource('schemas/ContributorsSchema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
     # creates a problem table
-    with app.open_resource('ProblemsSchema.sql', mode='r') as f:
+    with app.open_resource('schemas/ProblemsSchema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
 
     # fills with initial data
@@ -80,19 +78,34 @@ def update():
 @app.teardown_appcontext
 def close_db(error):
     """closes the database at the end of the request"""
-    database = getattr(g, 'sqlite_db', None)
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
 
-@app.route('/Data_Site')
+@app.route('/', methods=['POST', 'GET'])
 def main_page():
+    database = get_database()
+    error = None
+    stats = [repo_data.top_contributors()[0], repo_data.most_popular_problems()[0], repo_data.count_all_solutions(),
+             repo_data.most_average_user(), len(repo_data.get_contributors()), repo_data.most_common_language()]
+
+    if request.method == 'POST':
+        # checks if user in database
+        cur = database.execute('SELECT username FROM Contributors').fetchall()
+        if request.form['username'] in [name[0]for name in cur]:
+            return redirect('search')
+        # checks if problem is in the database
+        cur = database.execute('SELECT problem_number FROM Problems').fetchall()
+        if request.form['problem'] in [problem[0] for problem in cur]:
+            return redirect('search')
+        else:
+            error = request.form['username'] + ' is an Invalid User'
+
     # renders a template for the main page
     return render_template('Git_Hub_Data_Site.html',
-                           top_contributor=repo_data.top_contributors()[0],
-                           most_popular_problem=repo_data.most_popular_problems()[0],
-                           num_solutions=repo_data.count_all_solutions(),
-                           most_average_user=repo_data.most_average_user(),
-                           num_contributors=len(repo_data.get_contributors()),
-                           most_common_language=repo_data.most_common_language())
+                           stats=stats,
+                           error=error,
+                           )
 
 
 def add_contributor(user):
@@ -145,4 +158,10 @@ def problems():
                            problems=database.execute('SELECT * FROM Problems ORDER BY problem_number').fetchall())
 
 
-
+@app.route('/search', methods=['GET'])
+def search():
+    database = get_database()
+    return render_template('Search_User.html')
+    # return render_template('Search_Problem.html',
+    #                        problem=database.execute('SELECT * FROM Problems WHERE problem_number=?',
+    #                                                 request.form['problem']))
