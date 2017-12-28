@@ -64,10 +64,14 @@ class DataSiteTest(unittest.TestCase):
     def test_database(self):
         with data_site.app.app_context():
             database = sqlite3.connect(data_site.app.config['DATABASE'])
-            cur = database.cursor().execute('SELECT username FROM Contributors').fetchall()
+            cur = database.execute('SELECT username FROM Contributors').fetchall()
             self.assertListEqual(rd.top_contributors(),
                                  [name[0]
                                   for name in cur])
+            cur = database.execute('SELECT problem_number FROM Problems').fetchall()
+            self.assertListEqual([int(problem) for problem in rd.get_problems()],
+                                 [problem[0]
+                                  for problem in cur])
 
 if __name__ == '__main__':
     unittest.main()

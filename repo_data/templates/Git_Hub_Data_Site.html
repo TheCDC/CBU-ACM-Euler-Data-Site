@@ -19,7 +19,7 @@
           <tr>
             <td>{{ stats[0] }}</td>
             <td>{{ stats[1] }}</td>
-            <td>{{ stats[2] }}</td>
+            <td>{{ stats[3] }}</td>
           </tr>
         </table>
         <table>
@@ -29,7 +29,7 @@
             <th>Most Common Language</th>
           </tr>
           <tr>
-            <td>{{ stats[3] }}</td>
+            <td>{{ stats[2] }}</td>
             <td>{{ stats[4] }}</td>
             <td>{{ stats[5] }}</td>
           </tr>
@@ -39,10 +39,10 @@
         {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
         <form action="{{ url_for('main_page') }}" method="post">
           <d1>
-            <dt>Search for User:
+            <dt>Search for User by username:
             <dd><input type="text" name="username">
             <dd><input type=submit value=Search>
-            <dt>Search for problem:
+            <dt>Search for Problem by problem number:
             <dd><input type="text" name="problem">
             <dd><input type=submit value=Search>
           </d1>

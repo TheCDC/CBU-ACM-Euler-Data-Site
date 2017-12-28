@@ -2,7 +2,8 @@ import repo_data
 import os
 from repo_data import Objects
 import sqlite3
-from flask import Flask, render_template, g, request, redirect
+import re
+from flask import Flask, render_template, g, request, redirect, url_for
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -68,7 +69,7 @@ def create_contributors():
 
 
 def update():
-    """ a method to update the current database fo any new contributors or problems"""
+    """ a method to update the current database for any new contributors or problems"""
     database = get_database()
     create_problems()
     create_contributors()
@@ -90,22 +91,32 @@ def main_page():
              repo_data.most_average_user(), len(repo_data.get_contributors()), repo_data.most_common_language()]
 
     if request.method == 'POST':
+
         # checks if user in database
-        cur = database.execute('SELECT username FROM Contributors').fetchall()
-        if request.form['username'] in [name[0]for name in cur]:
-            return redirect('search')
-        # checks if problem is in the database
-        cur = database.execute('SELECT problem_number FROM Problems').fetchall()
-        if request.form['problem'] in [problem[0] for problem in cur]:
-            return redirect('search')
+        cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
+        if cur.fetchall():
+            return redirect(url_for('search_username', username=request.form['username']))
+
+        # collects digits inside problem
+        digits = re.search('\d', request.form['problem'])
+        # checks if digits are in the entry
+        if digits:
+            # gets substring of just digits
+            digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
+            cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
+            if cur.fetchall():
+                return redirect(url_for('search_problem', problem=int(digits)))
         else:
-            error = request.form['username'] + ' is an Invalid User'
+            # creates an error message for invalid entries
+            if request.form['username']:
+                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
+            else:
+                error = request.form['problem'] + ' is an invalid problem'
 
     # renders a template for the main page
     return render_template('Git_Hub_Data_Site.html',
                            stats=stats,
-                           error=error,
-                           )
+                           error=error,)
 
 
 def add_contributor(user):
@@ -121,13 +132,17 @@ def add_contributor(user):
             contributor = Objects.Contributor(user)
         except NameError:
             return
-        user_info = [contributor.username, contributor.get_rank(), ', '.join(contributor.get_problems())]
-        cur = database.execute('INSERT INTO Contributors (username, rank, problems_solved) VALUES (?, ?, ?)',
-                                 user_info)
+
+        # adds contributor info to database
+        user_info = [contributor.username, contributor.get_rank(), len(contributor.get_problems()),
+                     ', '.join(contributor.get_problems())]
+        cur = database.execute('INSERT INTO Contributors (username, rank, number_solved, problems_solved) '
+                               'VALUES (?, ?, ?, ?)', user_info)
 
 
 @app.route('/Contributors_List')
 def contributors():
+    """renders contributors_list template providing all rows in contributor data"""
     database = get_database()
     return render_template('Contributors_List.html',
                            contributors=database.execute('SELECT * FROM Contributors ORDER BY rank ').fetchall())
@@ -146,22 +161,35 @@ def add_problems(number):
             problem = Objects.Problem(number)
         except NameError:
             return
-        problem_info = [problem.problem_number, problem.get_popularity(), ', '.join(problem.get_who_solved())]
-        cur = database.execute('INSERT INTO Problems (problem_number, popularity, who_solved) VALUES (?, ?, ?)',
-                                 problem_info)
+
+        # adds problem information to database
+        problem_info = [problem.problem_number, problem.get_popularity(), len(problem.get_who_solved()),
+                        ', '.join(problem.get_who_solved())]
+        cur = database.execute('INSERT INTO Problems (problem_number, popularity, times_solved, who_solved) '
+                               'VALUES (?, ?, ?, ?)', problem_info)
 
 
 @app.route('/Problems_List')
 def problems():
+    """renders problem list, providing every row in table problems"""
     database = get_database()
     return render_template('Problem_List.html',
                            problems=database.execute('SELECT * FROM Problems ORDER BY problem_number').fetchall())
 
 
-@app.route('/search', methods=['GET'])
-def search():
+@app.route('/search_username/<username>')
+def search_username(username):
+    """renders Search_User template using given user data"""
     database = get_database()
-    return render_template('Search_User.html')
-    # return render_template('Search_Problem.html',
-    #                        problem=database.execute('SELECT * FROM Problems WHERE problem_number=?',
-    #                                                 request.form['problem']))
+    cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (username,))
+    return render_template('Search_User.html',
+                           contributor=cur.fetchone())
+
+
+@app.route('/search_problem/<problem>')
+def search_problem(problem):
+    """renders searc_problem template using given data"""
+    database = get_database()
+    cur = database.execute('SELECT * FROM Problems WHERE problem_number = ?', (problem,))
+    return render_template('Search_Problem.html',
+                           problem=cur.fetchone())
