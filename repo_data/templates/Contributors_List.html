@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <head>
     <title>Contributors List</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Data_Site_Style_Sheet.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 </head>
 <body>
-<h1>Contributors</h1>
-<h2><a style="float: left; margin-right: 4pc" href="{{ url_for('problems') }}">problems</a></h2>
-<h2><a style="float: right; margin-right: 4pc" href="{{ url_for('main_page') }}">home</a></h2>
+<div id="bannerimage">
+    <h1>CBU's Project Euler</h1>
+    <h2><a style="float: right; margin-left: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
+    <h2><a style="float: left; margin-right: 4pc" href="{{ url_for('problems', order='problem_number') }}">Problems</a></h2>
+</div>
+<h2>Contributors</h2>
 <table>
     <tr>
-        <th>Rank</th>
-        <th>Name</th>
-        <th>Problems Solved</th>
+        <th><a href="{{ url_for('contributors', order='rank')}}">Rank</a></th>
+        <th><a href="{{ url_for('contributors', order='username')}}">Name</a></th>
+        <th><a href="{{ url_for('contributors', order='number solved')}}">Number Solved</a></th>
     </tr>
     {% for contributor in contributors %}
     <tr>
         <th>{{ contributor[2]|e }}</th>
-        <th>{{ contributor[1]|e }}</th>
+        <th><a href="{{ url_for('search_username', username=contributor[1]) }}">{{ contributor[1]|e }}</a></th>
         <th>{{ contributor[3]|e }}</th>
     </tr>
     {% endfor %}

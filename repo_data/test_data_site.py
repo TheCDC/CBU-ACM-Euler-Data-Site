@@ -1,5 +1,8 @@
 import unittest
 import repo_data as rd
+import os
+import tempfile
+import sqlite3
 from repo_data import CBU_ACM_Data_Site as data_site
 
 
@@ -45,14 +48,31 @@ class DataSiteTest(unittest.TestCase):
     def test_most_common_language(self):
         self.assertEqual('Python', rd.most_common_language())
 
-    def test_create_problems(self):
-        # creates lists for created problems and actual problems
-        create_problems_list = data_site.create_problems()
-        problem_list = rd.get_problems()
 
-        # asserts they are the same length
-        self.assertEqual(len(problem_list), len(create_problems_list))
+    # Flask Tests
+    def setUp(self):
+        self.db_fd, data_site.app.config['DATABASE'] = tempfile.mkstemp()
+        data_site.app.testing = True
+        self.app = data_site.app.test_client()
+        with data_site.app.app_context():
+            data_site.init_database()
 
-        # asserts each problem has the same number
-        for a, b in zip(problem_list, create_problems_list):
-            self.assertEqual(a, b.problem_number)
+    def tearDown(self):
+        os.close(self.db_fd)
+        os.unlink(data_site.app.config['DATABASE'])
+
+    def test_database(self):
+        with data_site.app.app_context():
+            database = sqlite3.connect(data_site.app.config['DATABASE'])
+            cur = database.execute('SELECT username FROM Contributors').fetchall()
+            self.assertListEqual(rd.top_contributors(),
+                                 [name[0]
+                                  for name in cur])
+            cur = database.execute('SELECT problem_number FROM Problems').fetchall()
+            self.assertListEqual([int(problem) for problem in rd.get_problems()],
+                                 [problem[0]
+                                  for problem in cur])
+
+if __name__ == '__main__':
+    unittest.main()
+

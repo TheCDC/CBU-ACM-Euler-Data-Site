@@ -9,20 +9,19 @@
 <body>
     <table>
         <tr>
-            <th>Username</th>
-            <th>Rank</th>
-            <th>Number of problems sovled</th>
-            <th>Problems solved</th>
+            <th>Problem Number</th>
+            <th>Popularity</th>
+            <th>Times solved</th>
+            <th>Who Solved</th>
         </tr>
         <tr>
-            <td>{{ contributor[0] }}</td>
-            <td>{{ contributor[1] }}</td>
-            <td>{{ contributor[2] }}</td>
+            <td>{{ problem[0] }}</td>
+            <td>{{ problem[2] }}</td>
+            <td>{{ problem[3] }}</td>
             <td>
                 <ul>
-                    {% for problem in problems_solved %}
-                    <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">
-                        {{ problem }}</a></li>
+                    {% for username in who_solved %}
+                    <li><a href="{{ url_for('search_username', username=username) }}">{{ username }}</a></li>
                     {% endfor %}
                 </ul>
             </td>
