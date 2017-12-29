@@ -7,14 +7,14 @@
 <div id="bannerimage">
     <h1>CBU's Project Euler</h1>
     <h2><a style="float: right; margin-left: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
-    <h2><a style="float: left; margin-right: 4pc" href="{{ url_for('problems') }}">Problems</a></h2>
+    <h2><a style="float: left; margin-right: 4pc" href="{{ url_for('problems', order='problem_number') }}">Problems</a></h2>
 </div>
 <h2>Contributors</h2>
 <table>
     <tr>
-        <th>Rank</th>
-        <th>Name</th>
-        <th>Problems Solved</th>
+        <th><a href="{{ url_for('contributors', order='rank')}}">Rank</a></th>
+        <th><a href="{{ url_for('contributors', order='username')}}">Name</a></th>
+        <th><a href="{{ url_for('contributors', order='number solved')}}">Number Solved</a></th>
     </tr>
     {% for contributor in contributors %}
     <tr>

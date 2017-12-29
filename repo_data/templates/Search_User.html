@@ -3,8 +3,8 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 <div id="bannerimage">
     <h1>CBU's Project Euler</h1>
-    <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors') }}">Contributors</a></h2>
-    <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems') }}">Problems</a></h2>
+    <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors', order='rank') }}">Contributors</a></h2>
+    <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems', order='problem_number') }}">Problems</a></h2>
 </div>
 <body>
     <table>
@@ -15,10 +15,17 @@
             <th>Problems solved</th>
         </tr>
         <tr>
+            <td>{{ contributor[0] }}</td>
             <td>{{ contributor[1] }}</td>
             <td>{{ contributor[2] }}</td>
-            <td>{{ contributor[3] }}</td>
-            <td>{{ contributor[4] }}</td>
+            <td>
+                <ul>
+                    {% for problem in problems_solved %}
+                    <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">
+                        {{ problem }}</a></li>
+                    {% endfor %}
+                </ul>
+            </td>
         </tr>
     </table>
 </body>

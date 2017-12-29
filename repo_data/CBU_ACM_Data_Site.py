@@ -140,12 +140,18 @@ def add_contributor(user):
                                'VALUES (?, ?, ?, ?)', user_info)
 
 
-@app.route('/Contributors_List')
-def contributors():
+@app.route('/contributors/<order>')
+def contributors(order):
     """renders contributors_list template providing all rows in contributor data"""
     database = get_database()
+    if order == 'rank':
+        cur = database.execute('SELECT * FROM Contributors ORDER BY rank')
+    elif order == 'username':
+        cur = database.execute('SELECT * FROM Contributors ORDER BY username ')
+    else:
+        cur = database.execute('SELECT * FROM Contributors ORDER BY number_solved')
     return render_template('Contributors_List.html',
-                           contributors=database.execute('SELECT * FROM Contributors ORDER BY rank ').fetchall())
+                           contributors=cur.fetchall())
 
 
 def add_problems(number):
@@ -169,27 +175,45 @@ def add_problems(number):
                                'VALUES (?, ?, ?, ?)', problem_info)
 
 
-@app.route('/Problems_List')
-def problems():
+@app.route('/problems/<order>')
+def problems(order):
     """renders problem list, providing every row in table problems"""
     database = get_database()
+    if order == 'problem_number':
+        cur = database.execute('SELECT * FROM Problems ORDER BY problem_number')
+    elif order == 'popularity':
+        cur = database.execute('SELECT * FROM Problems ORDER BY popularity')
+    else:
+        cur = database.execute('SELECT * FROM Problems ORDER BY times_solved')
     return render_template('Problem_List.html',
-                           problems=database.execute('SELECT * FROM Problems ORDER BY problem_number').fetchall())
+                           problems=cur.fetchall())
 
 
 @app.route('/search_username/<username>')
 def search_username(username):
     """renders Search_User template using given user data"""
     database = get_database()
-    cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (username,))
+    # gets the problems solved
+    cur = database.execute('SELECT problems_solved FROM Contributors WHERE username = ?', (username,))
+    problems_solved = cur.fetchone()[0].split(", ")
+    # gets everything else
+    cur = database.execute('SELECT rank,username,number_solved FROM Contributors WHERE username = ?', (username,))
+
     return render_template('Search_User.html',
-                           contributor=cur.fetchone())
+                           contributor=cur.fetchone(),
+                           problems_solved=problems_solved)
 
 
 @app.route('/search_problem/<problem>')
 def search_problem(problem):
     """renders searc_problem template using given data"""
     database = get_database()
-    cur = database.execute('SELECT * FROM Problems WHERE problem_number = ?', (problem,))
+    # gets who solved
+    cur = database.execute('SELECT who_solved FROM Problems WHERE problem_number = ?', (problem,))
+    who_solved = cur.fetchone()[0].split(", ")
+    # gets everything else
+    cur = database.execute('SELECT problem_number, popularity, times_solved FROM Problems WHERE problem_number = ?',
+                           (int(problem),))
     return render_template('Search_Problem.html',
-                           problem=cur.fetchone())
+                           problem=cur.fetchone(),
+                           who_solved=who_solved)
