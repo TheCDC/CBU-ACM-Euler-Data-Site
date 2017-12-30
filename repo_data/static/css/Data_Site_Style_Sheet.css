@@ -1,6 +1,6 @@
 body {
-	background-size: 100%;
-	font-family: Helvetica, serif;
+  background: white;
+  font-family: Helvetica, serif;
 	color: Black;
 	height: 100%;
 	margin: 0;
@@ -8,15 +8,64 @@ body {
 	width: 100%;
 }
 
+.topnav {
+  overflow: hidden;
+  background-color: #00008B;
+}
+
+.topnav a:hover {
+    background-color: #ffd700;
+    color: white;
+}
+
+.topnav a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav input[type=text] {
+    float: right;
+    padding: 6px;
+    border: none;
+    margin-top: 8px;
+    margin-right: 16px;
+    font-size: 17px;
+}
+
+#stats{
+  border: 5px groove grey;
+  border-radius: 5px;
+  background: aliceblue;
+  height: 100%;
+  margin-left: 20pc;
+  margin-right: 20pc;
+}
+
+
+h1{
+font-size: 300%;
+}
+
+h2{
+font-size: 200%;
+}
+
 table, th, td{
-  font-family: Helvetica, serif;
+
   color: Black;
 }
 
 table {
   table-layout: fixed;
   margin: auto;
-  width: 75%;
+  width: 100%;
+  height: 40%;
+  font-size: 150%;
 }
 
 th {
@@ -28,6 +77,34 @@ th, td{
   text-align: center;
 }
 
+@media screen and (max-width: 1060px) {
+  table {
+    table-layout: fixed;
+    margin: auto;
+    width: 100%;
+    height: 40%;
+    font-size: 75%;
+  }
+
+  h1{
+    font-size: 200%;
+  }
+
+  h2 {
+    font-size: 150%;
+  }
+
+  #stats{
+    border: 5px solid grey;
+    border-radius: 5px;
+    border-style: groove;
+    background: aliceblue;
+    height: 35pc;
+    margin-left: 10pc;
+    margin-right: 10pc;
+  }
+
+}
 
   
 

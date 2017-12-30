@@ -3,14 +3,19 @@
     <title>CBU Project Euler</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
     <body>
-      <div id="bannerimage">
-        <h1>CBU's Project Euler</h1>
-        <h2><a style="float: left; margin-left: 4pc" href="{{ url_for('contributors', order='rank') }}">Contributors</a></h2>
-        <h2><a style="float: right; margin-right: 4pc" href="{{ url_for('problems', order='problem_number') }}">Problems</a></h2>
+      <div class="topnav">
+        <a class="active" href="{{ url_for('main_page') }}">Home</a>
+        <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+        <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+        <form action="{{ url_for('main_page') }}" method="post">
+          <input type="text" name="problem" placeholder="Search Problem #...">
+          <input type="text" name="username" placeholder="Search Username...">
+        </form>
       </div>
-      <div>
+      <h1>CBU's Project Euler</h1>
+      <div id="stats">
         <h2>Current Stats</h2>
-        <table>
+        <table style="padding-bottom: 5pc">
           <tr>
             <th>Top Contributor</th>
             <th>Most Popular Problem</th>
@@ -22,7 +27,7 @@
             <td>{{ stats[3] }}</td>
           </tr>
         </table>
-        <table>
+        <table style="padding-bottom: 5pc">
           <tr>
             <th>Current Number of Solutions</th>
             <th>Current Number of Contributors</th>
@@ -34,19 +39,6 @@
             <td>{{ stats[5] }}</td>
           </tr>
         </table>
-      </div>
-      <div id="searchbars">
-        {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-        <form action="{{ url_for('main_page') }}" method="post">
-          <d1>
-            <dt>Search for User by username:
-            <dd><input type="text" name="username">
-            <dd><input type=submit value=Search>
-            <dt>Search for Problem by problem number:
-            <dd><input type="text" name="problem">
-            <dd><input type=submit value=Search>
-          </d1>
-        </form>
       </div>
     </body>
   </html>

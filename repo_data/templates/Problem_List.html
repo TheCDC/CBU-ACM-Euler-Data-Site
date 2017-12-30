@@ -3,13 +3,14 @@
     <Title>Problems List</Title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 </Head>
-
 <body>
-<div id="bannerimage">
+    <div class="topnav">
+        <a class="active" href="{{ url_for('main_page') }}">Home</a>
+        <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+        <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+    </div>
     <h1>CBU's Project Euler</h1>
-    <h2><a style="float: right; margin-left: 4pc" href="{{ url_for('contributors', order='rank') }}">Contributors</a></h2>
-    <h2><a style="float: left; margin-right: 4pc" href="{{ url_for('main_page') }}">Home</a></h2>
-</div>
+    <div id="stats">
     <h2>Problems</h2>
         <table>
             <tr>
@@ -25,5 +26,6 @@
             </tr>
             {% endfor %}
         </table>
+    </div>
 </body>
 
