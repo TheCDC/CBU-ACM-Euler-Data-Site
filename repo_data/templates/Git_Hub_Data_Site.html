@@ -2,17 +2,20 @@
   <html>
     <title>CBU Project Euler</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
-    <body>
-      <div class="topnav">
-        <a class="active" href="{{ url_for('main_page') }}">Home</a>
-        <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
-        <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
-        <form action="{{ url_for('main_page') }}" method="post">
-          <input type="text" name="problem" placeholder="Search Problem #...">
-          <input type="text" name="username" placeholder="Search Username...">
-        </form>
-      </div>
+    <div class="topnav" >
       <h1>CBU's Project Euler</h1>
+      <form action="{{ url_for('main_page') }}" method="post">
+        <input type="text" name="problem" placeholder="Search Problem #...">
+        <input type="text" name="username" placeholder="Search Username...">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+    <div class="sidenav">
+      <a class="active" href="{{ url_for('main_page') }}">Home</a>
+      <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+      <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+    </div>
+    <body>
       <div id="stats">
         <h2>Current Stats</h2>
         <table style="padding-bottom: 5pc">

@@ -1,63 +1,100 @@
 body {
-  background: white;
+  background-image: url("https://wallpapercave.com/wp/PO6cjaY.jpg");
   font-family: Helvetica, serif;
-	color: Black;
-	height: 100%;
-	margin: 0;
-	text-align: center;
-	width: 100%;
+  color: Black;
+  height: 100%;
+  margin: 0;
+  text-align: center;
+  width: 100%;
 }
 
 .topnav {
   overflow: hidden;
   background-color: #00008B;
+  z-index: 2;
+  width: 100%;
+
 }
 
-.topnav a:hover {
-    background-color: #ffd700;
-    color: white;
-}
-
-.topnav a {
-    float: left;
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
+.topnav h1 {
+  float: left;
+  display: block;
+  text-align: center;
+  padding: 9px 15pc;
+  text-decoration: none;
+  font-size: 25px;
 }
 
 .topnav input[type=text] {
-    float: right;
-    padding: 6px;
-    border: none;
-    margin-top: 8px;
-    margin-right: 16px;
-    font-size: 17px;
+  float: right;
+  padding: 6px;
+  border: none;
+  margin-top: 25px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+.topnav input[type=submit] {
+  float: right;
+  padding: 6px;
+  border: none;
+  margin-top: 25px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+.sidenav {
+  height: 100%;
+  width: 13pc;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 81px;
+}
+
+.sidenav a {
+  padding: 20px 12px 20px 16px;
+  border-bottom: 3px solid grey;
+  text-align: center;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  background-color: #111;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+  background:#DAA520
 }
 
 #stats{
-  border: 5px groove grey;
-  border-radius: 5px;
-  background: aliceblue;
+  border: 5px solid #DAA520;
+  background: white;
   height: 100%;
-  margin-left: 20pc;
+  margin-left: 25pc;
   margin-right: 20pc;
+  margin-top: 7pc;
+  padding-bottom: 6pc;
+
 }
 
-
 h1{
-font-size: 300%;
+  font-size: 300%;
+  color: #DAA520;
+  text-shadow: -3px 0 black, 0 3px black, 3px 0 black, 0 -3px black;
 }
 
 h2{
-font-size: 200%;
+  font-size: 200%;
 }
 
-table, th, td{
-
-  color: Black;
+ul {
+  display:table;
+  margin:0 auto;
 }
 
 table {
@@ -66,24 +103,19 @@ table {
   width: 100%;
   height: 40%;
   font-size: 150%;
+  color: Black;
+  padding: 4pc;
 }
 
-th {
-  height: 50px;
-}
 
-th, td{
-  padding: 8px;
-  text-align: center;
-}
-
-@media screen and (max-width: 1060px) {
+@media screen and (max-width: 1100px) {
   table {
     table-layout: fixed;
     margin: auto;
     width: 100%;
     height: 40%;
     font-size: 75%;
+    padding: 2pc;
   }
 
   h1{
@@ -95,16 +127,14 @@ th, td{
   }
 
   #stats{
-    border: 5px solid grey;
-    border-radius: 5px;
-    border-style: groove;
-    background: aliceblue;
     height: 35pc;
-    margin-left: 10pc;
-    margin-right: 10pc;
+    margin-left: 15pc;
+    margin-right: 6pc;
+
   }
 
 }
+
 
   
 

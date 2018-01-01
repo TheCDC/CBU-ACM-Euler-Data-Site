@@ -1,32 +1,38 @@
 <!DOCTYPE html>
 <title>CBU Project Euler</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
-<body>
-    <div class="topnav">
-        <a class="active" href="{{ url_for('main_page') }}">Home</a>
-        <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
-        <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
-    </div>
+<div class="topnav" >
     <h1>CBU's Project Euler</h1>
-    <table>
-        <tr>
-            <th>Username</th>
-            <th>Rank</th>
-            <th>Number of problems sovled</th>
-            <th>Problems solved</th>
-        </tr>
-        <tr>
-            <td>{{ contributor[0] }}</td>
-            <td>{{ contributor[1] }}</td>
-            <td>{{ contributor[2] }}</td>
-            <td>
-                <ul>
-                    {% for problem in problems_solved %}
-                    <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">
-                        {{ problem }}</a></li>
-                    {% endfor %}
-                </ul>
-            </td>
-        </tr>
-    </table>
+    <form action="{{ url_for('main_page') }}" method="post">
+        <input type="text" name="problem" placeholder="Search Problem #...">
+        <input type="text" name="username" placeholder="Search Username...">
+        <input type="submit" value="Submit">
+    </form>
+</div>
+<div class="sidenav">
+    <a class="active" href="{{ url_for('main_page') }}">Home</a>
+    <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+    <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+</div>
+<body>
+    <div id="stats">
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Rank</th>
+                <th>Number of Problems Solved</th>
+            </tr>
+            <tr>
+                <td>{{ contributor[1] }}</td>
+                <td>{{ contributor[0] }}</td>
+                <td>{{ contributor[2] }}</td>
+            </tr>
+        </table>
+        <h2>Problems Solved</h2>
+        <ul>
+            {% for problem in problems_solved %}
+            <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">{{ problem }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
