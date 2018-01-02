@@ -187,8 +187,8 @@ def find_solution_files(problem_number, username):
 def most_average_user():
     """Return the username of the user whose number of problems solved
     is closest to the average."""
-    # finds tha average number of solutions
-    avg = count_all_solutions() / len(which_solved())
+    # finds the average number of solutions
+    avg = count_all_solutions() / len(get_contributors())
     # the current average user
     curr_avg = ""
     # diff from the average

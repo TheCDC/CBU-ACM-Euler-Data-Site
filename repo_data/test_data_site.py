@@ -26,7 +26,7 @@ class DataSiteTest(unittest.TestCase):
                             ["Christopher D Chen", "Chris Nugent", "Christopher Nugent"])
 
     def test_most_average_user(self):
-        self.assertEqual(rd.most_average_user(), "Alex Liu")
+        self.assertEqual(rd.most_average_user(), "Christopher Nugent")
 
     def test_find_solution_files(self):
         self.assertListEqual(rd.find_solution_files("1", "Alex Liu"),
