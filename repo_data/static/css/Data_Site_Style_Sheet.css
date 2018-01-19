@@ -1,0 +1,140 @@
+body {
+  background-image: url("https://wallpapercave.com/wp/PO6cjaY.jpg");
+  font-family: Helvetica, serif;
+  color: Black;
+  height: 100%;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: #00008B;
+  z-index: 2;
+  width: 100%;
+
+}
+
+.topnav h1 {
+  float: left;
+  display: block;
+  text-align: center;
+  padding: 9px 15pc;
+  text-decoration: none;
+  font-size: 25px;
+}
+
+.topnav input[type=text] {
+  float: right;
+  padding: 6px;
+  border: none;
+  margin-top: 25px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+.topnav input[type=submit] {
+  float: right;
+  padding: 6px;
+  border: none;
+  margin-top: 25px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+.sidenav {
+  height: 100%;
+  width: 13pc;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 81px;
+}
+
+.sidenav a {
+  padding: 20px 12px 20px 16px;
+  border-bottom: 3px solid grey;
+  text-align: center;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  background-color: #111;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+  background:#DAA520
+}
+
+#stats{
+  border: 5px solid #DAA520;
+  background: white;
+  height: 100%;
+  margin-left: 25pc;
+  margin-right: 20pc;
+  margin-top: 7pc;
+  padding-bottom: 6pc;
+
+}
+
+h1{
+  font-size: 300%;
+  color: #DAA520;
+  text-shadow: -3px 0 black, 0 3px black, 3px 0 black, 0 -3px black;
+}
+
+h2{
+  font-size: 200%;
+}
+
+ul {
+  display:table;
+  margin:0 auto;
+}
+
+table {
+  table-layout: fixed;
+  margin: auto;
+  width: 100%;
+  height: 40%;
+  font-size: 150%;
+  color: Black;
+  padding: 4pc;
+}
+
+
+@media screen and (max-width: 1100px) {
+  table {
+    table-layout: fixed;
+    margin: auto;
+    width: 100%;
+    height: 40%;
+    font-size: 75%;
+    padding: 2pc;
+  }
+
+  h1{
+    font-size: 200%;
+  }
+
+  h2 {
+    font-size: 150%;
+  }
+
+  #stats{
+    height: 35pc;
+    margin-left: 15pc;
+    margin-right: 6pc;
+
+  }
+
+}
+
+
+  
+

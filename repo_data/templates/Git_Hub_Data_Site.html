@@ -1,38 +1,47 @@
 <!DOCTYPE html>
   <html>
-    <head>
-      <title>CBU Project Euler</title>
-      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"/>
-    </head>
-    <body>
+    <title>CBU Project Euler</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
+    <div class="topnav" >
       <h1>CBU's Project Euler</h1>
-      <h2>Current Stats</h2>
-        <table>
+      <form action="{{ url_for('main_page') }}" method="post">
+        <input type="text" name="problem" placeholder="Search Problem #...">
+        <input type="text" name="username" placeholder="Search Username...">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+    <div class="sidenav">
+      <a class="active" href="{{ url_for('main_page') }}">Home</a>
+      <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+      <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+    </div>
+    <body>
+      <div id="stats">
+        <h2>Current Stats</h2>
+        <table style="padding-bottom: 5pc">
           <tr>
             <th>Top Contributor</th>
             <th>Most Popular Problem</th>
-            <th>Most Average User</th>  
+            <th>Most Average User</th>
           </tr>
           <tr>
-            <td>{{ top_contributor }}</td>
-            <td>{{ most_popular_problem }}</td>
-            <td>{{ most_average_user}}</td>
+            <td>{{ stats[0] }}</td>
+            <td>{{ stats[1] }}</td>
+            <td>{{ stats[3] }}</td>
           </tr>
         </table>
-        <table>
+        <table style="padding-bottom: 5pc">
           <tr>
             <th>Current Number of Solutions</th>
             <th>Current Number of Contributors</th>
             <th>Most Common Language</th>
           </tr>
           <tr>
-            <td>{{ num_solutions }}</td>
-            <td>{{ num_contributors }}</td>
-            <td>And some more</td>
+            <td>{{ stats[2] }}</td>
+            <td>{{ stats[4] }}</td>
+            <td>{{ stats[5] }}</td>
           </tr>
         </table>
+      </div>
     </body>
-    <footer>
-      <p><cite>vertical code wallpaper</cite> https://wallpapertag.com/wallpaper/full/4/2/9/125577-vertical-code-wallpaper-2560x1600-pc.jpg</p>
-    </footer>
   </html>

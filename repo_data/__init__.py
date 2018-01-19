@@ -2,8 +2,7 @@ from git import Repo
 import os
 import shutil
 import math
-from flask import Flask, render_template
-app = Flask(__name__)
+import operator
 
 TARGET_DIR = os.path.join(os.path.expanduser('~'), 'cbu_csse_euler')
 
@@ -34,9 +33,39 @@ def language_of_file(filename):
     file_ext_map = {".c": "C", ".cpp": "C++", ".cs": "C#", ".java": "Java", ".m": "MatLab",
                     ".py": "Python", ".rb": "Ruby"}
     # gets the file extension type
-    filename_ext = filename[filename.index(".", 0, len(filename)):]
+    try:
+        filename_ext = filename[filename.index(".", 0, len(filename)):]
+    except ValueError:
+        return ""
     # returns the file type
     return file_ext_map.get(filename_ext)
+
+
+def most_common_language():
+    # list of all the languages used and the number of times they have been used
+    file_ext_map = {"C": 0, "C++": 0, "C#": 0, "Java": 0, "MatLab": 0,
+                    "Python": 0, "Ruby": 0}
+
+    # loops through problems checking the languages used for each problem
+    for problem in get_problems():
+        problem_dir = os.path.join(TARGET_DIR, 'Euler_{}'.format(leftpad(str(problem), '0', 3)))
+        # tries to access the list of solutions by problem number
+        try:
+            files_list = os.listdir(problem_dir)
+            # loops through the files incrementing each languages every time its been used
+            for file in files_list:
+                # gets the file path
+                for solution in find_solution_files(problem, file):
+                    # language of file
+                    language = language_of_file(solution)
+                    # checks that the language is is the file_ext_map
+                    if language in file_ext_map.keys():
+                        file_ext_map[language] += 1
+        except FileNotFoundError:
+            continue
+
+    # returns max language
+    return max(file_ext_map.items(), key=operator.itemgetter(1))[0]
 
 
 def which_solved():
@@ -142,25 +171,24 @@ def find_solution_files(problem_number, username):
     # list of the location of the user's solution for said problem
     problems = []
     # the folder directory of the problem
-    problem_filename = 'euler_{}/'.format(leftpad(str(problem_number), '0', 3))
+    problem_filename = os.path.join(TARGET_DIR, 'euler_{}/'.format(leftpad(str(problem_number), '0', 3)))
     # tries to retrieve a list of all folders in the directory
     try:
-        files_list = os.listdir(os.path.join(TARGET_DIR, problem_filename))
-    except FileNotFoundError:
+        user_filename = os.path.join(problem_filename, username)
+        files_list = os.listdir(user_filename)
+    except (FileNotFoundError, NotADirectoryError):
         return []
     # for all the files adds the location of all the files of the user
     for file in files_list:
-        if username in file:
-            problems.append(os.path.join(TARGET_DIR, problem_filename) + file)
+        problems.append(os.path.join(user_filename, file))
     return problems
-
 
 
 def most_average_user():
     """Return the username of the user whose number of problems solved
     is closest to the average."""
-    # finds tha average number of solutions
-    avg = count_all_solutions() / len(which_solved())
+    # finds the average number of solutions
+    avg = count_all_solutions() / len(get_contributors())
     # the current average user
     curr_avg = ""
     # diff from the average
@@ -204,7 +232,7 @@ def get_problems():
 
 
 def main():
-    setup()
+    print(most_common_language())
 
 
 if __name__ == '__main__':

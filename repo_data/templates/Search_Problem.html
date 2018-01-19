@@ -18,20 +18,20 @@
     <div id="stats">
         <table>
             <tr>
-                <th>Username</th>
-                <th>Rank</th>
-                <th>Number of Problems Solved</th>
+                <th>Problem Number</th>
+                <th>Popularity</th>
+                <th>Times solved</th>
             </tr>
             <tr>
-                <td>{{ contributor[1] }}</td>
-                <td>{{ contributor[0] }}</td>
-                <td>{{ contributor[2] }}</td>
+                <td>{{ problem[0] }}</td>
+                <td>{{ problem[1] }}</td>
+                <td>{{ problem[2] }}</td>
             </tr>
         </table>
-        <h2>Problems Solved</h2>
+        <h2>Who Solved</h2>
         <ul>
-            {% for problem in problems_solved %}
-            <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">{{ problem }}</a></li>
+            {% for username in who_solved %}
+            <li><a href="{{ url_for('search_username', username=username) }}">{{ username }}</a></li>
             {% endfor %}
         </ul>
     </div>

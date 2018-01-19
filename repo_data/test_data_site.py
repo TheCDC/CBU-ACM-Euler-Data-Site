@@ -1,5 +1,9 @@
 import unittest
 import repo_data as rd
+import os
+import tempfile
+import sqlite3
+from repo_data import CBU_ACM_Data_Site as data_site
 
 
 class DataSiteTest(unittest.TestCase):
@@ -22,11 +26,11 @@ class DataSiteTest(unittest.TestCase):
                             ["Christopher D Chen", "Chris Nugent", "Christopher Nugent"])
 
     def test_most_average_user(self):
-        self.assertEqual(rd.most_average_user(), "Alex Liu")
+        self.assertEqual(rd.most_average_user(), "Christopher Nugent")
 
     def test_find_solution_files(self):
         self.assertListEqual(rd.find_solution_files("1", "Alex Liu"),
-                             ['C:\\Users\\Alex Liu\\cbu_csse_euler\\euler_001/Alex Liu'])
+                             ['C:\\Users\\Alex Liu\\cbu_csse_euler\\euler_001/Alex Liu\\euler_001.py'])
         self.assertListEqual(rd.find_solution_files("5", "Alex Liu"), [])
 
     # tests the helper method to get problems
@@ -40,3 +44,35 @@ class DataSiteTest(unittest.TestCase):
         self.assertSetEqual(rd.get_contributors(), {"Alex Liu", "Christopher Nugent", "Christopher D Chen", "Craig Mariani",
                                                     "Hannah Bernal", "Micah Steinbock", "Anthony Henson", "Dylan Stump",
                                                     "Chris Nugent"})
+
+    def test_most_common_language(self):
+        self.assertEqual('Python', rd.most_common_language())
+
+
+    # Flask Tests
+    def setUp(self):
+        self.db_fd, data_site.app.config['DATABASE'] = tempfile.mkstemp()
+        data_site.app.testing = True
+        self.app = data_site.app.test_client()
+        with data_site.app.app_context():
+            data_site.init_database()
+
+    def tearDown(self):
+        os.close(self.db_fd)
+        os.unlink(data_site.app.config['DATABASE'])
+
+    def test_database(self):
+        with data_site.app.app_context():
+            database = sqlite3.connect(data_site.app.config['DATABASE'])
+            cur = database.execute('SELECT username FROM Contributors').fetchall()
+            self.assertListEqual(rd.top_contributors(),
+                                 [name[0]
+                                  for name in cur])
+            cur = database.execute('SELECT problem_number FROM Problems').fetchall()
+            self.assertListEqual([int(problem) for problem in rd.get_problems()],
+                                 [problem[0]
+                                  for problem in cur])
+
+if __name__ == '__main__':
+    unittest.main()
+
