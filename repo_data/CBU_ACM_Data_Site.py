@@ -37,6 +37,9 @@ def init_database():
     # creates a problem table
     with app.open_resource('schemas/ProblemsSchema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
+    # creates a solutions table
+    with app.open_resource('schemas/SolutionsSchema.sql', mode='r') as f:
+        database.cursor().executescript(f.read())
 
     # fills with initial data
     create_contributors()
@@ -69,6 +72,7 @@ def close_db(error):
         g.sqlite_db.close()
 
 
+# todo errors
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     database = get_database()
@@ -129,15 +133,18 @@ def add_contributor(contributor):
     if contributor not in cur.fetchall():
 
         # adds contributor info to database
-        cur = database.execute('INSERT INTO Contributors (username, rank, number_solved, problems_solved) '
-                               'VALUES (?, ?, ?, ?)', contributor_info)
+        database.execute('INSERT INTO Contributors (username, rank, number_solved) '
+                         'VALUES (?, ?, ?)', contributor_info[0: 3])
+
+        for problem in contributor_info[3]:
+            database.execute('INSERT INTO Solutions ( problem_number, username) VALUES (?, ?)', (contributor_info[0], problem))
+
     else:
-        command = '''UPDATE Contributors 
+        database.execute('''UPDATE Contributors 
                       SET rank = ?, 
                           number_solved = ?, 
-                          problems_solved = ? 
                       WHERE username = ?'''
-        database.execute(command, (contributor_info[1:], contributor_info[0]))
+                         , (contributor_info[1:], contributor_info[0]))
 
 
 def get_contibutor_info(contributor):
@@ -148,7 +155,7 @@ def get_contibutor_info(contributor):
 
     # the contributor info
     return [contributor, repo_data.get_contributor_rank(contributor),
-            len(problems_solved), ', '.join(problems_solved)]
+            len(problems_solved),problems_solved]
 
 
 @app.route('/contributors/<order>')
@@ -189,10 +196,10 @@ def add_problems(number):
     if number not in cur.fetchall():
 
         # adds problem information to database
-        database.execute('INSERT INTO Problems (problem_number, popularity, times_solved, who_solved) '
-                               'VALUES (?, ?, ?, ?)', problem_info)
+        database.execute('INSERT INTO Problems (problem_number, popularity, times_solved) '
+                         'VALUES (?, ?, ?)', problem_info)
     else:
-        command ='UPDATE Problems SET problem_number = ? popularity = ?, times_solved = ?, who_solved = ? ' \
+        command = 'UPDATE Problems SET problem_number = ? popularity = ?, times_solved = ?' \
                  'WHERE problem_number = ?'
         database.execute(command, problem_info)
 
@@ -203,7 +210,7 @@ def get_problem_info(problem):
 
     contributors_solved = repo_data.who_solved(problem)
 
-    return [problem, repo_data.get_problem_popularity(problem), len(contributors_solved), ', '.join(contributors_solved)]
+    return [problem, repo_data.get_problem_popularity(problem), len(contributors_solved)]
 
 
 @app.route('/problems/<order>')

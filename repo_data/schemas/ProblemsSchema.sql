@@ -1,8 +1,7 @@
 DROP TABLE if EXISTS Problems;
 CREATE TABLE Problems (
-  id INTEGER PRIMARY KEY,
-  problem_number INTEGER ,
+  problem_number INTEGER PRIMARY KEY ,
   popularity integer NOT NULL,
-  times_solved integer NOT NULL,
-  who_solved integer NOT NULL
+  times_solved integer NOT NULL
 )
+
