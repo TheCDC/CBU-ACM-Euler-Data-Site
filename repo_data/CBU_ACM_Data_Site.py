@@ -1,6 +1,5 @@
 import repo_data
 import os
-from repo_data import Objects
 import sqlite3
 import re
 from flask import Flask, render_template, g, request, redirect, url_for
@@ -52,28 +51,15 @@ def init_database_command():
     print('Database initialized')
 
 
-def create_problems():
-    """method to add all current problems to the database"""
-    # loops through problems creating Problems
-    for problem in repo_data.get_problems():
-        # creates a new problem and adds it to the list
-        add_problems(problem)
-
-
-def create_contributors():
-    """method to add all current contributors to the database"""
-    # loops through contributors, creating contributor objects
-    for contributor in repo_data.top_contributors():
-        # creates a new contributor and adds it on
-        add_contributor(contributor)
-
-
-def update():
+@app.cli.command('update_database')
+def update_user():
     """ a method to update the current database for any new contributors or problems"""
+    repo_data.setup()
     database = get_database()
-    create_problems()
     create_contributors()
+    create_problems()
     database.commit()
+    print('Database updated')
 
 
 @app.teardown_appcontext
@@ -119,25 +105,50 @@ def main_page():
                            error=error,)
 
 
-def add_contributor(user):
+def create_contributors():
+    """method to add all current contributors to the database"""
+    # loops through contributors, creating contributor objects
+    for contributor in repo_data.top_contributors():
+        # creates a new contributor and adds it on
+        add_contributor(contributor)
+
+
+def add_contributor(contributor):
     """helper method to add contributors"""
     # gets the database and selects all users
     database = get_database()
     cur = database.execute('SELECT username FROM Contributors')
 
+    # tries to create a new contributor of name user
+    try:
+        contributor_info = get_contibutor_info(contributor)
+    except NameError:
+        return
+
     # if the user is not already in the database creates a new record
-    if user not in cur.fetchall():
-        # tries to create a new contributor of name user
-        try:
-            contributor = Objects.Contributor(user)
-        except NameError:
-            return
+    if contributor not in cur.fetchall():
 
         # adds contributor info to database
-        user_info = [contributor.username, contributor.get_rank(), len(contributor.get_problems()),
-                     ', '.join(contributor.get_problems())]
         cur = database.execute('INSERT INTO Contributors (username, rank, number_solved, problems_solved) '
-                               'VALUES (?, ?, ?, ?)', user_info)
+                               'VALUES (?, ?, ?, ?)', contributor_info)
+    else:
+        command = '''UPDATE Contributors 
+                      SET rank = ?, 
+                          number_solved = ?, 
+                          problems_solved = ? 
+                      WHERE username = ?'''
+        database.execute(command, (contributor_info[1:], contributor_info[0]))
+
+
+def get_contibutor_info(contributor):
+    if contributor not in repo_data.get_contributors():
+        raise NameError('Contributor does not exist')
+
+    problems_solved = repo_data.problems_solved_by(contributor)
+
+    # the contributor info
+    return [contributor, repo_data.get_contributor_rank(contributor),
+            len(problems_solved), ', '.join(problems_solved)]
 
 
 @app.route('/contributors/<order>')
@@ -154,25 +165,45 @@ def contributors(order):
                            contributors=cur.fetchall())
 
 
+def create_problems():
+    """method to add all current problems to the database"""
+    # loops through problems creating Problems
+    for problem in repo_data.get_problems():
+        # creates a new problem and adds it to the list
+        add_problems(problem)
+
+
 def add_problems(number):
     """helper method to add problems"""
     # gets the database and selects all users
     database = get_database()
     cur = database.execute('SELECT problem_number FROM Problems')
 
+    # tries to create a new contributor of name user
+    try:
+        problem_info = get_problem_info(number)
+    except NameError:
+        return
+
     # if the user is not already in the database creates a new record
     if number not in cur.fetchall():
-        # tries to create a new contributor of name user
-        try:
-            problem = Objects.Problem(number)
-        except NameError:
-            return
 
         # adds problem information to database
-        problem_info = [problem.problem_number, problem.get_popularity(), len(problem.get_who_solved()),
-                        ', '.join(problem.get_who_solved())]
-        cur = database.execute('INSERT INTO Problems (problem_number, popularity, times_solved, who_solved) '
+        database.execute('INSERT INTO Problems (problem_number, popularity, times_solved, who_solved) '
                                'VALUES (?, ?, ?, ?)', problem_info)
+    else:
+        command ='UPDATE Problems SET problem_number = ? popularity = ?, times_solved = ?, who_solved = ? ' \
+                 'WHERE problem_number = ?'
+        database.execute(command, problem_info)
+
+
+def get_problem_info(problem):
+    if problem not in repo_data.get_problems():
+        raise NameError('Problem does not exist')
+
+    contributors_solved = repo_data.who_solved(problem)
+
+    return [problem, repo_data.get_problem_popularity(problem), len(contributors_solved), ', '.join(contributors_solved)]
 
 
 @app.route('/problems/<order>')

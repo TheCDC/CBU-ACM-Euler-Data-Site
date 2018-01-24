@@ -3,6 +3,7 @@
     <Title>Problems List</Title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 </Head>
+<!--the top bar of the website-->
 <div class="topnav" >
     <h1>CBU's Project Euler</h1>
     <form action="{{ url_for('main_page') }}" method="post">
@@ -11,20 +12,24 @@
         <input type="submit" value="Submit">
     </form>
 </div>
+<!--Website Sidebar -->
 <div class="sidenav">
     <a class="active" href="{{ url_for('main_page') }}">Home</a>
     <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
     <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
 </div>
+
 <body>
     <div id="stats">
         <h2>Problems</h2>
         <table>
+            <!--table header-->
             <tr>
                 <th><a href="{{ url_for('problems', order='problem_number') }}">Problem Number</a></th>
                 <th><a href="{{ url_for('problems', order='popularity') }}">Problem Popularity</a></th>
                 <th><a href="{{ url_for('problems', order='times_solved') }}">Times solved</a></th>
             </tr>
+            <!--loops through adding problems to the table-->
             {% for problem in problems %}
             <tr>
                 <th><a href="{{ url_for('search_problem', problem=problem[1]) }}">Euler {{ problem[1]|e }}</a></th>
