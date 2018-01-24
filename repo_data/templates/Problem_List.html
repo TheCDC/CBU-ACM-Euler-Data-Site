@@ -32,9 +32,9 @@
             <!--loops through adding problems to the table-->
             {% for problem in problems %}
             <tr>
-                <th><a href="{{ url_for('search_problem', problem=problem[1]) }}">Euler {{ problem[1]|e }}</a></th>
+                <th><a href="{{ url_for('search_problem', problem=problem[0]) }}">Euler {{ problem[0]|e }}</a></th>
+                <th>{{ problem[1]|e }}</th>
                 <th>{{ problem[2]|e }}</th>
-                <th>{{ problem[3]|e }}</th>
             </tr>
             {% endfor %}
         </table>

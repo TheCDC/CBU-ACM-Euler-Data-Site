@@ -35,7 +35,7 @@
         <ul>
             <!-- loops through adding users to the list-->
             {% for username in who_solved %}
-            <li><a href="{{ url_for('search_username', username=username) }}">{{ username }}</a></li>
+            <li><a href="{{ url_for('search_username', username=username[0]) }}">{{ username[0] }}</a></li>
             {% endfor %}
         </ul>
     </div>

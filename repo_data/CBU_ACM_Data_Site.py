@@ -50,6 +50,7 @@ def init_database():
 
 @app.cli.command('init_database')
 def init_database_command():
+    repo_data.setup()
     init_database()
     print('Database initialized')
 
@@ -57,10 +58,14 @@ def init_database_command():
 @app.cli.command('update_database')
 def update_user():
     """ a method to update the current database for any new contributors or problems"""
+    # runs a scan of the current stats
     repo_data.setup()
+    # gets database
     database = get_database()
+    # creates contributors and problems
     create_contributors()
     create_problems()
+
     database.commit()
     print('Database updated')
 
@@ -121,33 +126,42 @@ def add_contributor(contributor):
     """helper method to add contributors"""
     # gets the database and selects all users
     database = get_database()
-    cur = database.execute('SELECT username FROM Contributors')
+    cur = database.cursor()
+    cur.execute('SELECT username FROM Contributors')
+    contributor_list = [row[0] for row in cur.fetchall()]
 
     # tries to create a new contributor of name user
     try:
-        contributor_info = get_contibutor_info(contributor)
+        contributor_info = get_contributor_info(contributor)
     except NameError:
         return
 
-    # if the user is not already in the database creates a new record
-    if contributor not in cur.fetchall():
+    # if the contributor is not already in the database creates a new record
+    if contributor not in contributor_list:
 
         # adds contributor info to database
         database.execute('INSERT INTO Contributors (username, rank, number_solved) '
                          'VALUES (?, ?, ?)', contributor_info[0: 3])
 
         for problem in contributor_info[3]:
-            database.execute('INSERT INTO Solutions ( problem_number, username) VALUES (?, ?)', (contributor_info[0], problem))
-
+            database.execute('INSERT INTO Solutions ( problem_number, username) '
+                             'VALUES (?, ?)', (problem[problem.index(' '):], contributor_info[0]))
+    # else it updates the contributor info
     else:
-        database.execute('''UPDATE Contributors 
-                      SET rank = ?, 
-                          number_solved = ?, 
-                      WHERE username = ?'''
-                         , (contributor_info[1:], contributor_info[0]))
+        database.execute('UPDATE Contributors SET rank = ?, number_solved = ? WHERE username = ?',
+                         (contributor_info[1], contributor_info[2], contributor_info[0]))
+        # gets a list of all the problems the user has solved
+        cur.execute('SELECT problem_number FROM Solutions WHERE username = ?', (contributor_info[0],))
+        problems_list = [row[0] for row in cur.fetchall()]
+        # loops through every solution adding it to the list
+        for problem in contributor_info[3]:
+            # if contributor does not already have a solution adds it
+            if int(problem[problem.index(' '):]) not in problems_list:
+                cur.execute('INSERT INTO Solutions (problem_number, username) Values(?, ?)',
+                            (problem[problem.index(' '):], contributor_info[0]))
 
 
-def get_contibutor_info(contributor):
+def get_contributor_info(contributor):
     if contributor not in repo_data.get_contributors():
         raise NameError('Contributor does not exist')
 
@@ -155,7 +169,7 @@ def get_contibutor_info(contributor):
 
     # the contributor info
     return [contributor, repo_data.get_contributor_rank(contributor),
-            len(problems_solved),problems_solved]
+            len(problems_solved), problems_solved]
 
 
 @app.route('/contributors/<order>')
@@ -185,6 +199,7 @@ def add_problems(number):
     # gets the database and selects all users
     database = get_database()
     cur = database.execute('SELECT problem_number FROM Problems')
+    problems_list = [repo_data.leftpad(str(row[0]), '0', 3) for row in cur.fetchall()]
 
     # tries to create a new contributor of name user
     try:
@@ -193,15 +208,14 @@ def add_problems(number):
         return
 
     # if the user is not already in the database creates a new record
-    if number not in cur.fetchall():
+    if number not in problems_list:
 
         # adds problem information to database
         database.execute('INSERT INTO Problems (problem_number, popularity, times_solved) '
                          'VALUES (?, ?, ?)', problem_info)
     else:
-        command = 'UPDATE Problems SET problem_number = ? popularity = ?, times_solved = ?' \
-                 'WHERE problem_number = ?'
-        database.execute(command, problem_info)
+        database.execute('UPDATE Problems SET popularity = ?, times_solved = ? WHERE problem_number = ?',
+                         (problem_info[1], problem_info[2], problem_info[0]))
 
 
 def get_problem_info(problem):
@@ -231,11 +245,12 @@ def problems(order):
 def search_username(username):
     """renders Search_User template using given user data"""
     database = get_database()
+    cur = database.cursor()
     # gets the problems solved
-    cur = database.execute('SELECT problems_solved FROM Contributors WHERE username = ?', (username,))
-    problems_solved = cur.fetchone()[0].split(", ")
+    cur.execute('SELECT problem_number FROM Solutions WHERE username = ?', (username,))
+    problems_solved = cur.fetchall()
     # gets everything else
-    cur = database.execute('SELECT rank,username,number_solved FROM Contributors WHERE username = ?', (username,))
+    cur.execute('SELECT * FROM Contributors WHERE username = ?', (username,))
 
     return render_template('Search_User.html',
                            contributor=cur.fetchone(),
@@ -246,12 +261,13 @@ def search_username(username):
 def search_problem(problem):
     """renders searc_problem template using given data"""
     database = get_database()
+    cur = database.cursor()
     # gets who solved
-    cur = database.execute('SELECT who_solved FROM Problems WHERE problem_number = ?', (problem,))
-    who_solved = cur.fetchone()[0].split(", ")
+    cur.execute('SELECT username FROM Solutions WHERE problem_number = ?', (problem,))
+    who_solved = cur.fetchall()
     # gets everything else
-    cur = database.execute('SELECT problem_number, popularity, times_solved FROM Problems WHERE problem_number = ?',
-                           (int(problem),))
+    cur.execute('SELECT problem_number, popularity, times_solved FROM Problems WHERE problem_number = ?',
+                (int(problem),))
     return render_template('Search_Problem.html',
                            problem=cur.fetchone(),
                            who_solved=who_solved)

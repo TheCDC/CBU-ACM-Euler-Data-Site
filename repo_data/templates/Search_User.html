@@ -35,7 +35,10 @@
         <ul>
             <!-- loops through adding problems to the list that user has solved -->
             {% for problem in problems_solved %}
-            <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">{{ problem }}</a></li>
+            <li><a
+                    href="{{ url_for('search_problem', problem=problem[0]) }}">Euler {{ problem[0] }}
+                </a>
+            </li>
             {% endfor %}
         </ul>
     </div>
