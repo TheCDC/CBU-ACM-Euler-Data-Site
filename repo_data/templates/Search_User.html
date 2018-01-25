@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <title>CBU Project Euler</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
+<!--the top bar of the website-->
 <div class="topnav" >
     <h1>CBU's Project Euler</h1>
     <form action="{{ url_for('main_page') }}" method="post">
@@ -9,11 +10,13 @@
         <input type="submit" value="Submit">
     </form>
 </div>
+<!--the side bar of the website-->
 <div class="sidenav">
     <a class="active" href="{{ url_for('main_page') }}">Home</a>
     <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
     <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
 </div>
+<!-- stats for the current contributor-->
 <body>
     <div id="stats">
         <table>
@@ -30,8 +33,12 @@
         </table>
         <h2>Problems Solved</h2>
         <ul>
+            <!-- loops through adding problems to the list that user has solved -->
             {% for problem in problems_solved %}
-            <li><a href="{{ url_for('search_problem', problem=problem[problem.index(' '):]) }}">{{ problem }}</a></li>
+            <li><a
+                    href="{{ url_for('search_problem', problem=problem[0]) }}">Euler {{ problem[0] }}
+                </a>
+            </li>
             {% endfor %}
         </ul>
     </div>

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
   <html>
     <title>CBU Project Euler</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}">
+    <!--the top bar of the website-->
     <div class="topnav" >
       <h1>CBU's Project Euler</h1>
       <form action="{{ url_for('main_page') }}" method="post">
@@ -10,11 +11,13 @@
         <input type="submit" value="Submit">
       </form>
     </div>
+    <!--the side bar of the website-->
     <div class="sidenav">
       <a class="active" href="{{ url_for('main_page') }}">Home</a>
       <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
       <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
     </div>
+    <!-- displays the cuurent stats of the project -->
     <body>
       <div id="stats">
         <h2>Current Stats</h2>
