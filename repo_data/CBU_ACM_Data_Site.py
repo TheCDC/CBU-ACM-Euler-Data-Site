@@ -87,26 +87,27 @@ def main_page():
 
     if request.method == 'POST':
 
-        # checks if user in database
-        cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
-        if cur.fetchall():
-            return redirect(url_for('search_username', username=request.form['username']))
-
-        # collects digits inside problem
-        digits = re.search('\d', request.form['problem'])
-        # checks if digits are in the entry
-        if digits:
-            # gets substring of just digits
-            digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
-            cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
-            if cur.fetchall():
-                return redirect(url_for('search_problem', problem=int(digits)))
-        else:
-            # creates an error message for invalid entries
-            if request.form['username']:
-                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
+        if request.form['problem']:
+            # collects digits inside problem
+            digits = re.search('\d', request.form['problem'])
+            # checks if digits are in the entry
+            if digits:
+                # gets substring of just digits
+                digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
+                cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
+                if cur.fetchall():
+                    return redirect(url_for('search_problem', problem=int(digits)))
+                else:
+                    error = request.form['problem'] + ' is an invalid problem'
             else:
                 error = request.form['problem'] + ' is an invalid problem'
+        else:
+            # checks if user in database
+            cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
+            if cur.fetchall():
+                return redirect(url_for('search_username', username=request.form['username']))
+            else:
+                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
 
     # renders a template for the main page
     return render_template('Git_Hub_Data_Site.html',

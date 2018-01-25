@@ -1,50 +1,55 @@
 <!DOCTYPE html>
-  <html>
-    <title>CBU Project Euler</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}">
-    <!--the top bar of the website-->
-    <div class="topnav" >
-      <h1>CBU's Project Euler</h1>
-      <form action="{{ url_for('main_page') }}" method="post">
-        <input type="text" name="problem" placeholder="Search Problem #...">
-        <input type="text" name="username" placeholder="Search Username...">
-        <input type="submit" value="Submit">
-      </form>
+<html>
+        <title>CBU Project Euler</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}">
+        <!--the top bar of the website-->
+        <div class="topnav" >
+        <h1>CBU's Project Euler</h1>
+            <form action="{{ url_for('main_page') }}" method="post">
+            <input type="text" name="problem" placeholder="Search Problem #...">
+            <input type="text" name="username" placeholder="Search Username...">
+            <input type="submit" value="Submit">
+        </form>
     </div>
     <!--the side bar of the website-->
     <div class="sidenav">
-      <a class="active" href="{{ url_for('main_page') }}">Home</a>
-      <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
-      <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
+        <a class="active" href="{{ url_for('main_page') }}">Home</a>
+        <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
+        <a href="{{ url_for('problems', order='problem_number') }}">Problems</a>
     </div>
     <!-- displays the cuurent stats of the project -->
     <body>
-      <div id="stats">
-        <h2>Current Stats</h2>
-        <table style="padding-bottom: 5pc">
-          <tr>
-            <th>Top Contributor</th>
-            <th>Most Popular Problem</th>
-            <th>Most Average User</th>
-          </tr>
-          <tr>
-            <td>{{ stats[0] }}</td>
-            <td>{{ stats[1] }}</td>
-            <td>{{ stats[3] }}</td>
-          </tr>
-        </table>
-        <table style="padding-bottom: 5pc">
-          <tr>
-            <th>Current Number of Solutions</th>
-            <th>Current Number of Contributors</th>
-            <th>Most Common Language</th>
-          </tr>
-          <tr>
-            <td>{{ stats[2] }}</td>
-            <td>{{ stats[4] }}</td>
-            <td>{{ stats[5] }}</td>
-          </tr>
-        </table>
-      </div>
+        <div id="stats">
+            {% if error %}
+            <p class=error><strong>Error:</strong>{{ error }}
+            {% else %}
+            <h2>Current Stats</h2>
+            <table style="padding-bottom: 5pc">
+                <tr>
+                    <th>Top Contributor</th>
+                    <th>Most Popular Problem</th>
+                    <th>Most Average User</th>
+                </tr>
+                <tr>
+                    <td>{{ stats[0] }}</td>
+                    <td>{{ stats[1] }}</td>
+                    <td>{{ stats[3] }}</td>
+                </tr>
+            </table>
+            <table style="padding-bottom: 5pc">
+                <tr>
+                    <th>Current Number of Solutions</th>
+                    <th>Current Number of Contributors</th>
+                    <th>Most Common Language</th>
+                </tr>
+                <tr>
+                    <td>{{ stats[2] }}</td>
+                    <td>{{ stats[4] }}</td>
+                    <td>{{ stats[5] }}</td>
+                </tr>
+            </table>
+            {% endif %}
+        </div>
     </body>
-  </html>
+
+</html>
