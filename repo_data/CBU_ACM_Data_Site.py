@@ -77,43 +77,6 @@ def close_db(error):
         g.sqlite_db.close()
 
 
-@app.route('/', methods=['POST', 'GET'])
-def main_page():
-    database = get_database()
-    error = None
-    stats = [repo_data.top_contributors()[0], repo_data.most_popular_problems()[0], repo_data.count_all_solutions(),
-             repo_data.most_average_user(), len(repo_data.get_contributors()), repo_data.most_common_language()]
-
-    if request.method == 'POST':
-
-        if request.form['problem']:
-            # collects digits inside problem
-            digits = re.search('\d', request.form['problem'])
-            # checks if digits are in the entry
-            if digits:
-                # gets substring of just digits
-                digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
-                cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
-                if cur.fetchall():
-                    return redirect(url_for('search_problem', problem=int(digits)))
-                else:
-                    error = request.form['problem'] + ' is an invalid problem'
-            else:
-                error = request.form['problem'] + ' is an invalid problem'
-        else:
-            # checks if user in database
-            cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
-            if cur.fetchall():
-                return redirect(url_for('search_username', username=request.form['username']))
-            else:
-                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
-
-    # renders a template for the main page
-    return render_template('Git_Hub_Data_Site.html',
-                           stats=stats,
-                           error=error,)
-
-
 def create_contributors():
     """method to add all current contributors to the database"""
     # loops through contributors, creating contributor objects
@@ -173,20 +136,6 @@ def get_contributor_info(contributor):
             len(problems_solved), problems_solved]
 
 
-@app.route('/contributors/<order>')
-def contributors(order):
-    """renders contributors_list template providing all rows in contributor data"""
-    database = get_database()
-    if order == 'rank':
-        cur = database.execute('SELECT * FROM Contributors ORDER BY rank')
-    elif order == 'username':
-        cur = database.execute('SELECT * FROM Contributors ORDER BY username ')
-    else:
-        cur = database.execute('SELECT * FROM Contributors ORDER BY number_solved')
-    return render_template('Contributors_List.html',
-                           contributors=cur.fetchall())
-
-
 def create_problems():
     """method to add all current problems to the database"""
     # loops through problems creating Problems
@@ -227,6 +176,58 @@ def get_problem_info(problem):
     contributors_solved = repo_data.who_solved(problem)
 
     return [problem, repo_data.get_problem_popularity(problem), len(contributors_solved)]
+
+
+@app.route('/', methods=['POST', 'GET'])
+def main_page():
+    database = get_database()
+    error = None
+    stats = [repo_data.top_contributors()[0], repo_data.most_popular_problems()[0], repo_data.count_all_solutions(),
+             repo_data.most_average_user(), len(repo_data.get_contributors()), repo_data.most_common_language()]
+
+    if request.method == 'POST':
+
+        if request.form['problem']:
+            # collects digits inside problem
+            digits = re.search('\d', request.form['problem'])
+            # checks if digits are in the entry
+            if digits:
+                # gets substring of just digits
+                digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
+                cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
+                if cur.fetchall():
+                    return redirect(url_for('search_problem', problem=int(digits)))
+                else:
+                    error = request.form['problem'] + ' is an invalid problem'
+            else:
+                error = request.form['problem'] + ' is an invalid problem'
+        else:
+            # checks if user in database
+            cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
+            if cur.fetchall():
+                return redirect(url_for('search_username', username=request.form['username']))
+            else:
+                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
+
+    # renders a template for the main page
+    return render_template('Git_Hub_Data_Site.html',
+                           stats=stats,
+                           error=error,)
+
+
+@app.route('/contributors/<order>')
+def contributors(order):
+    """renders contributors_list template providing all rows in contributor data"""
+    database = get_database()
+    if order == 'rank':
+        cur = database.execute('SELECT * FROM Contributors ORDER BY rank')
+    elif order == 'username':
+        cur = database.execute('SELECT * FROM Contributors ORDER BY username ')
+    else:
+        cur = database.execute('SELECT * FROM Contributors ORDER BY number_solved')
+    return render_template('Contributors_List.html',
+                           contributors=cur.fetchall())
+
 
 
 @app.route('/problems/<order>')
