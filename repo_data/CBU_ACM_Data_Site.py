@@ -11,7 +11,7 @@ app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data_site.db'),
     SECRET_KEY='development key',
 ))
-app.config.from_envvar('DATA_SITE_SETTINGS', silent=True)
+
 
 
 def connect_database():
@@ -77,7 +77,6 @@ def close_db(error):
         g.sqlite_db.close()
 
 
-# todo errors
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     database = get_database()
@@ -163,6 +162,7 @@ def add_contributor(contributor):
 
 
 def get_contributor_info(contributor):
+    """Helper method that gets contributor info"""
     if contributor not in repo_data.get_contributors():
         raise NameError('Contributor does not exist')
 
@@ -220,6 +220,7 @@ def add_problems(number):
 
 
 def get_problem_info(problem):
+    """Helper method that gets problem info"""
     if problem not in repo_data.get_problems():
         raise NameError('Problem does not exist')
 

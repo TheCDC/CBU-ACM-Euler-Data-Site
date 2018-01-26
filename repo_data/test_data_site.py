@@ -50,14 +50,14 @@ class DataSiteTest(unittest.TestCase):
 
 
     # Flask Tests
-    def setUp(self):
+    def set_up(self):
         self.db_fd, data_site.app.config['DATABASE'] = tempfile.mkstemp()
         data_site.app.testing = True
         self.app = data_site.app.test_client()
         with data_site.app.app_context():
             data_site.init_database()
 
-    def tearDown(self):
+    def tear_down(self):
         os.close(self.db_fd)
         os.unlink(data_site.app.config['DATABASE'])
 
