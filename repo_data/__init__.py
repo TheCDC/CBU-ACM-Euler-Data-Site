@@ -150,6 +150,21 @@ def compare_problems(p1):
     return -len(who_solved(p1))
 
 
+def get_problem_popularity(problem_number):
+    """gets the popularity of the problem"""
+    rank = 1
+
+    # looks for problem while incrementing rank
+    for problem in most_popular_problems():
+        # if this is the problem returns rank
+        if problem == "Euler " + problem_number:
+            return rank
+        rank += 1
+
+    # if problem not found returns 0
+    return 0
+
+
 def top_contributors():
     """Return a list of user in descending order of
     number of problems solved."""
@@ -163,6 +178,21 @@ def top_contributors():
 def compare_users(username):
     """A compare function, made to compare user by num solved"""
     return -len(problems_solved_by(username))
+
+
+def get_contributor_rank(username):
+    """gets the rank of a contributor"""
+    rank = 1
+
+    # looks for user while incrementing rank
+    for contributor in top_contributors():
+        # if this is the contributor returns rank
+        if contributor == username:
+            return rank
+        # increments rank
+        rank += 1
+    # if contributor not found returns 0
+    return 0
 
 
 def find_solution_files(problem_number, username):

@@ -3,6 +3,7 @@
     <title>Contributors List</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Data_Site_Style_Sheet.css') }}"/>
 </head>
+<!--the top bar of the website-->
 <div class="topnav" >
     <h1>CBU's Project Euler</h1>
     <form action="{{ url_for('main_page') }}" method="post">
@@ -11,6 +12,7 @@
         <input type="submit" value="Submit">
     </form>
 </div>
+<!--the side bar of the website-->
 <div class="sidenav">
     <a class="active" href="{{ url_for('main_page') }}">Home</a>
     <a href="{{ url_for('contributors', order='rank') }}">Contributors</a>
@@ -19,17 +21,19 @@
 <body>
     <div id="stats">
     <h2>Contributors</h2>
+        <!-- a table with all the users and their stats -->
         <table>
             <tr>
                 <th><a href="{{ url_for('contributors', order='rank')}}">Rank</a></th>
                 <th><a href="{{ url_for('contributors', order='username')}}">Name</a></th>
                 <th><a href="{{ url_for('contributors', order='number solved')}}">Number Solved</a></th>
             </tr>
+            <!-- loops through adding contributors to the table -->
             {% for contributor in contributors %}
             <tr>
+                <th>{{ contributor[1]|e }}</th>
+                <th><a href="{{ url_for('search_username', username=contributor[0]) }}">{{ contributor[0]|e }}</a></th>
                 <th>{{ contributor[2]|e }}</th>
-                <th><a href="{{ url_for('search_username', username=contributor[1]) }}">{{ contributor[1]|e }}</a></th>
-                <th>{{ contributor[3]|e }}</th>
             </tr>
             {% endfor %}
         </table>

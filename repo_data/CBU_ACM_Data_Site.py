@@ -1,6 +1,5 @@
 import repo_data
 import os
-from repo_data import Objects
 import sqlite3
 import re
 from flask import Flask, render_template, g, request, redirect, url_for
@@ -12,7 +11,7 @@ app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'data_site.db'),
     SECRET_KEY='development key',
 ))
-app.config.from_envvar('DATA_SITE_SETTINGS', silent=True)
+
 
 
 def connect_database():
@@ -38,6 +37,9 @@ def init_database():
     # creates a problem table
     with app.open_resource('schemas/ProblemsSchema.sql', mode='r') as f:
         database.cursor().executescript(f.read())
+    # creates a solutions table
+    with app.open_resource('schemas/SolutionsSchema.sql', mode='r') as f:
+        database.cursor().executescript(f.read())
 
     # fills with initial data
     create_contributors()
@@ -48,16 +50,31 @@ def init_database():
 
 @app.cli.command('init_database')
 def init_database_command():
+    repo_data.setup()
     init_database()
     print('Database initialized')
 
 
-def create_problems():
-    """method to add all current problems to the database"""
-    # loops through problems creating Problems
-    for problem in repo_data.get_problems():
-        # creates a new problem and adds it to the list
-        add_problems(problem)
+@app.cli.command('update_database')
+def update_user():
+    """ a method to update the current database for any new contributors or problems"""
+    # runs a scan of the current stats
+    repo_data.setup()
+    # gets database
+    database = get_database()
+    # creates contributors and problems
+    create_contributors()
+    create_problems()
+
+    database.commit()
+    print('Database updated')
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """closes the database at the end of the request"""
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
 
 def create_contributors():
@@ -68,19 +85,97 @@ def create_contributors():
         add_contributor(contributor)
 
 
-def update():
-    """ a method to update the current database for any new contributors or problems"""
+def add_contributor(contributor):
+    """helper method to add contributors"""
+    # gets the database and selects all users
     database = get_database()
-    create_problems()
-    create_contributors()
-    database.commit()
+    cur = database.cursor()
+    cur.execute('SELECT username FROM Contributors')
+    contributor_list = [row[0] for row in cur.fetchall()]
+
+    # tries to create a new contributor of name user
+    try:
+        contributor_info = get_contributor_info(contributor)
+    except NameError:
+        return
+
+    # if the contributor is not already in the database creates a new record
+    if contributor not in contributor_list:
+
+        # adds contributor info to database
+        database.execute('INSERT INTO Contributors (username, rank, number_solved) '
+                         'VALUES (?, ?, ?)', contributor_info[0: 3])
+
+        for problem in contributor_info[3]:
+            database.execute('INSERT INTO Solutions ( problem_number, username) '
+                             'VALUES (?, ?)', (problem[problem.index(' '):], contributor_info[0]))
+    # else it updates the contributor info
+    else:
+        database.execute('UPDATE Contributors SET rank = ?, number_solved = ? WHERE username = ?',
+                         (contributor_info[1], contributor_info[2], contributor_info[0]))
+        # gets a list of all the problems the user has solved
+        cur.execute('SELECT problem_number FROM Solutions WHERE username = ?', (contributor_info[0],))
+        problems_list = [row[0] for row in cur.fetchall()]
+        # loops through every solution adding it to the list
+        for problem in contributor_info[3]:
+            # if contributor does not already have a solution adds it
+            if int(problem[problem.index(' '):]) not in problems_list:
+                cur.execute('INSERT INTO Solutions (problem_number, username) Values(?, ?)',
+                            (problem[problem.index(' '):], contributor_info[0]))
 
 
-@app.teardown_appcontext
-def close_db(error):
-    """closes the database at the end of the request"""
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
+def get_contributor_info(contributor):
+    """Helper method that gets contributor info"""
+    if contributor not in repo_data.get_contributors():
+        raise NameError('Contributor does not exist')
+
+    problems_solved = repo_data.problems_solved_by(contributor)
+
+    # the contributor info
+    return [contributor, repo_data.get_contributor_rank(contributor),
+            len(problems_solved), problems_solved]
+
+
+def create_problems():
+    """method to add all current problems to the database"""
+    # loops through problems creating Problems
+    for problem in repo_data.get_problems():
+        # creates a new problem and adds it to the list
+        add_problems(problem)
+
+
+def add_problems(number):
+    """helper method to add problems"""
+    # gets the database and selects all users
+    database = get_database()
+    cur = database.execute('SELECT problem_number FROM Problems')
+    problems_list = [repo_data.leftpad(str(row[0]), '0', 3) for row in cur.fetchall()]
+
+    # tries to create a new contributor of name user
+    try:
+        problem_info = get_problem_info(number)
+    except NameError:
+        return
+
+    # if the user is not already in the database creates a new record
+    if number not in problems_list:
+
+        # adds problem information to database
+        database.execute('INSERT INTO Problems (problem_number, popularity, times_solved) '
+                         'VALUES (?, ?, ?)', problem_info)
+    else:
+        database.execute('UPDATE Problems SET popularity = ?, times_solved = ? WHERE problem_number = ?',
+                         (problem_info[1], problem_info[2], problem_info[0]))
+
+
+def get_problem_info(problem):
+    """Helper method that gets problem info"""
+    if problem not in repo_data.get_problems():
+        raise NameError('Problem does not exist')
+
+    contributors_solved = repo_data.who_solved(problem)
+
+    return [problem, repo_data.get_problem_popularity(problem), len(contributors_solved)]
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -92,52 +187,32 @@ def main_page():
 
     if request.method == 'POST':
 
-        # checks if user in database
-        cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
-        if cur.fetchall():
-            return redirect(url_for('search_username', username=request.form['username']))
-
-        # collects digits inside problem
-        digits = re.search('\d', request.form['problem'])
-        # checks if digits are in the entry
-        if digits:
-            # gets substring of just digits
-            digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
-            cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
-            if cur.fetchall():
-                return redirect(url_for('search_problem', problem=int(digits)))
-        else:
-            # creates an error message for invalid entries
-            if request.form['username']:
-                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
+        if request.form['problem']:
+            # collects digits inside problem
+            digits = re.search('\d', request.form['problem'])
+            # checks if digits are in the entry
+            if digits:
+                # gets substring of just digits
+                digits = request.form['problem'][request.form['problem'].index(digits.group(0)):]
+                cur = database.execute('SELECT problem_number FROM Problems WHERE problem_number = ?',(int(digits),))
+                if cur.fetchall():
+                    return redirect(url_for('search_problem', problem=int(digits)))
+                else:
+                    error = request.form['problem'] + ' is an invalid problem'
             else:
                 error = request.form['problem'] + ' is an invalid problem'
+        else:
+            # checks if user in database
+            cur = database.execute('SELECT * FROM Contributors WHERE username = ?', (request.form['username'],))
+            if cur.fetchall():
+                return redirect(url_for('search_username', username=request.form['username']))
+            else:
+                error = request.form['username'] + ' is an invalid user \n *Capitalization matters!'
 
     # renders a template for the main page
     return render_template('Git_Hub_Data_Site.html',
                            stats=stats,
                            error=error,)
-
-
-def add_contributor(user):
-    """helper method to add contributors"""
-    # gets the database and selects all users
-    database = get_database()
-    cur = database.execute('SELECT username FROM Contributors')
-
-    # if the user is not already in the database creates a new record
-    if user not in cur.fetchall():
-        # tries to create a new contributor of name user
-        try:
-            contributor = Objects.Contributor(user)
-        except NameError:
-            return
-
-        # adds contributor info to database
-        user_info = [contributor.username, contributor.get_rank(), len(contributor.get_problems()),
-                     ', '.join(contributor.get_problems())]
-        cur = database.execute('INSERT INTO Contributors (username, rank, number_solved, problems_solved) '
-                               'VALUES (?, ?, ?, ?)', user_info)
 
 
 @app.route('/contributors/<order>')
@@ -153,26 +228,6 @@ def contributors(order):
     return render_template('Contributors_List.html',
                            contributors=cur.fetchall())
 
-
-def add_problems(number):
-    """helper method to add problems"""
-    # gets the database and selects all users
-    database = get_database()
-    cur = database.execute('SELECT problem_number FROM Problems')
-
-    # if the user is not already in the database creates a new record
-    if number not in cur.fetchall():
-        # tries to create a new contributor of name user
-        try:
-            problem = Objects.Problem(number)
-        except NameError:
-            return
-
-        # adds problem information to database
-        problem_info = [problem.problem_number, problem.get_popularity(), len(problem.get_who_solved()),
-                        ', '.join(problem.get_who_solved())]
-        cur = database.execute('INSERT INTO Problems (problem_number, popularity, times_solved, who_solved) '
-                               'VALUES (?, ?, ?, ?)', problem_info)
 
 
 @app.route('/problems/<order>')
@@ -193,11 +248,12 @@ def problems(order):
 def search_username(username):
     """renders Search_User template using given user data"""
     database = get_database()
+    cur = database.cursor()
     # gets the problems solved
-    cur = database.execute('SELECT problems_solved FROM Contributors WHERE username = ?', (username,))
-    problems_solved = cur.fetchone()[0].split(", ")
+    cur.execute('SELECT problem_number FROM Solutions WHERE username = ?', (username,))
+    problems_solved = cur.fetchall()
     # gets everything else
-    cur = database.execute('SELECT rank,username,number_solved FROM Contributors WHERE username = ?', (username,))
+    cur.execute('SELECT * FROM Contributors WHERE username = ?', (username,))
 
     return render_template('Search_User.html',
                            contributor=cur.fetchone(),
@@ -208,12 +264,13 @@ def search_username(username):
 def search_problem(problem):
     """renders searc_problem template using given data"""
     database = get_database()
+    cur = database.cursor()
     # gets who solved
-    cur = database.execute('SELECT who_solved FROM Problems WHERE problem_number = ?', (problem,))
-    who_solved = cur.fetchone()[0].split(", ")
+    cur.execute('SELECT username FROM Solutions WHERE problem_number = ?', (problem,))
+    who_solved = cur.fetchall()
     # gets everything else
-    cur = database.execute('SELECT problem_number, popularity, times_solved FROM Problems WHERE problem_number = ?',
-                           (int(problem),))
+    cur.execute('SELECT problem_number, popularity, times_solved FROM Problems WHERE problem_number = ?',
+                (int(problem),))
     return render_template('Search_Problem.html',
                            problem=cur.fetchone(),
                            who_solved=who_solved)
